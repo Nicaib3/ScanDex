@@ -9,10 +9,20 @@ Integrative Project for the 4th term
 The first screen is used to control the camera responsible for
 scanning the Pokemon that the user observes
 
+### Function
+
+Enable the capture of a **camera frame** so that the image can
+be sent to the **backend**.
+
 ### Structure File
 
-- `/app/src/main/java/com/example/scandex/`
-- `/app/src/main/res/layout/`
+- `/app/src/main/java/com/example/scandex/MainActivity.kt`
+- `/app/src/main/res/layout/main_activity.xml`
+- `/app/src/main/res/drawable`
+  - `/circle_blue.xml`
+  - `/circle_green.xml`
+  - `/circle_yellow.xml`
+  - `/circle_red.xml`
 
 ### Design & interface XML
 
