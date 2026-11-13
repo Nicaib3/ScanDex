@@ -20,12 +20,12 @@ scanning the Pokemon that the user observes
 - `/app/src/main/res/layout/activity_main.xml`
 - `/app/src/main/res/drawable/`
   - `abajo_atras.png`
-  - `abajo_derecha.jpg`
-  - `abajo_izquierda.jpg`
-  - `arriba_derecha.jpg`
+  - `abajo_derecha.png`
+  - `abajo_izquierda.png`
+  - `arriba_derecha.png`
   - `arriba_enfrente.png`
-  - `arriba_izquierda.jpg`
-  - `centro.jpg`
+  - `arriba_izquierda.png`
+  - `centro.png`
 
 ### Design & interface XML
 

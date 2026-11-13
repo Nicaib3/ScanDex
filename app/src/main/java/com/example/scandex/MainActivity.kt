@@ -24,7 +24,7 @@ import androidx.core.view.WindowInsetsCompat
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class MainActivity : AppCompatActivity() {
+class   MainActivity : AppCompatActivity() {
 
     private lateinit var previewView: PreviewView
     private lateinit var btnCapture: Button

@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ScanDex</string>
+    <string name="hello_poke_world">Hello Poke-world!</string>
+    <string name="take_picture">Tomar foto</string>
 </resources>
