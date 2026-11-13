@@ -34,7 +34,7 @@ to ensure that the interface is responsive and maintains its proportions
 
 - **Camera Screen (`FrameLayout`):** Gray frame (`#E0E0E0`)
   Spread across the background center of the red frames
-- **Action Buttons (`Button`):** 4 square buttons in a 2 by 2 area with different colors for future options.
+- **Action Buttons (`Button`):** Square buttons in a 2 by 2 area with different colors for future options.
 - **Picture Button (`Button`):** Center blue button to take picture above the 4 action buttons.
 
 ### Logic kt
