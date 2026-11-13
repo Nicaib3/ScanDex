@@ -19,23 +19,26 @@ be sent to the **backend**.
 - `/app/src/main/java/com/example/scandex/MainActivity.kt`
 - `/app/src/main/res/layout/main_activity.xml`
 - `/app/src/main/res/drawable`
-  - `/circle_blue.xml`
-  - `/circle_green.xml`
-  - `/circle_yellow.xml`
-  - `/circle_red.xml`
+  - `/abajo_atras.png`
+  - `/abajo_derecha.jpg`
+  - `/abajo_izquierda.jpg`
+  - `/arriba_derecha.jpg`
+  - `/arriba_enfrente.png`
+  - `/arriba_izquierda.jpg`
+  - `/centro.jpg`
 
 ### Design & interface XML
 
 The design of the main first screen is build using a_ **`ConstraintLayout`**
 to ensure that the interface is responsive and maintains its proportions
 
-- **Outer Shell (`ConstraintLayout`):** 2 red borders on top and bottom (`#D32F2F`)
-  and a `20dp` padding for the border. Top border shell encapsulates stile and camera area, bottom border shell encapsulates action buttons, camera button and camera area
+- **Outer Shell (`ConstraintLayout`):** 2 red borders with design.
+- Top border shell encapsulates stile and camera area, bottom border shell encapsulates action buttons, camera button and camera area
 
 - **Camera Screen (`FrameLayout`):** Gray frame (`#E0E0E0`)
   Spread across the background center of the red frames
 - **Action Buttons (`Button`):** Square buttons in a 2 by 2 area with different colors for future options.
-- **Picture Button (`Button`):** Center blue button to take picture above the 4 action buttons.
+- **Picture Button (`Button`):** Center blue circle button to take picture above the 4 action buttons.
 
 ### Logic kt
 
