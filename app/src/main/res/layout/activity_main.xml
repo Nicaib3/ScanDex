@@ -1,19 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#D32F2F"
+    android:padding="20dp"
     tools:context=".MainActivity">
 
-    <TextView
+    <!-- Luces decorativas superiores estilo Pokédex -->
+    <LinearLayout
+        android:id="@+id/topLightsContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello Poke-world!"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Lente azul principal -->
+        <View
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/circle_blue" />
+
+        <!-- Luces pequeñas roja, amarilla y verde -->
+        <View
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="16dp"
+            android:background="@drawable/circle_red" />
+
+        <View
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/circle_yellow" />
+
+        <View
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/circle_green" />
+    </LinearLayout>
+
+    <!-- Marco gris clásico alrededor de la pantalla -->
+
+    <!-- Botón inferior central para tomar captura -->
+
+    <FrameLayout
+        android:id="@+id/screenBezel"
+        android:layout_width="319dp"
+        android:layout_height="299dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="24dp"
+        android:background="#E0E0E0"
+        android:padding="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/btnCapture"
+        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/topLightsContainer">
+
+        <!-- Cuadrado negro donde irá la cámara -->
+        <View
+            android:id="@+id/cameraPreviewPlaceholder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#000000" />
+
+    </FrameLayout>
+
+    <Button
+        android:id="@+id/btnCapture"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="#1976D2"
+        android:paddingHorizontal="32dp"
+        android:paddingVertical="14dp"
+        android:text="📷"
+        android:textColor="#FFFFFF"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:cornerRadius="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
