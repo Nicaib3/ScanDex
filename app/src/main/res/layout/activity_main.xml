@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#D32F2F"
@@ -63,12 +64,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/topLightsContainer">
 
-        <!-- Cuadrado negro donde irá la cámara -->
-        <View
-            android:id="@+id/cameraPreviewPlaceholder"
+        <!-- Vista previa de la cámara (CameraX) -->
+        <androidx.camera.view.PreviewView
+            android:id="@+id/cameraPreview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="#000000" />
+            android:background="#000000"
+            app:scaleType="fillCenter" />
 
     </FrameLayout>
 

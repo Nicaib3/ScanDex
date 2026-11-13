@@ -16,7 +16,7 @@ scanning the Pokemon that the user observes
 
 ### Design & interface XML
 
-_The design of the main first screen is build using a_ **`ConstraintLayout`**
+The design of the main first screen is build using a_ **`ConstraintLayout`**
 to ensure that the interface is responsive and maintains its proportions
 
 - **Outer Shell (`ConstraintLayout`):** Main container with a red background (`#D32F2F`)
@@ -32,6 +32,11 @@ to ensure that the interface is responsive and maintains its proportions
 
 - This section completes the understanding of the logic *
 
-- **Main class:**
+- **Main class:** `MainActivity.kt`
 - **Behavior:**
-  - explain
+  - Requests the `CAMERA` permission at startup (plus `WRITE_EXTERNAL_STORAGE`
+    on Android 9 or lower).
+  - Uses **CameraX** to show the back camera preview
+    inside the screen frame (`PreviewView`).
+  - When **CAPTURAR** is pressed, it takes a photo
+    and saves it to the gallery in `Pictures/ScanDex`.
