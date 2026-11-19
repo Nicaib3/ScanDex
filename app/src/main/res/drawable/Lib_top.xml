@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- Color de fondo del cuadro -->
+    <solid android:color="#ff0d00" />
+
+    <!-- Grosor y color del borde (outline) -->
+    <stroke
+        android:width="3dp"
+        android:color="#000000" />
+
+    <!-- Opcional: si quieres esquinas redondeadas, descomenta la línea de abajo -->
+    <!-- <corners android:radius="8dp" /> -->
+
+</shape>

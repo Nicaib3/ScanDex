@@ -8,12 +8,35 @@
     android:background="#A9CDD5"
     tools:context=".pokemonlibrary">
 
+    <View
+        android:layout_width="422dp"
+        android:layout_height="92dp"
+        android:background="@drawable/Lib_top"
+        tools:layout_editor_absoluteX="-6dp"
+        tools:layout_editor_absoluteY="-9dp" />
+
+    <Button
+        android:id="@+id/Gen"
+        android:layout_width="151dp"
+        android:layout_height="53dp"
+        android:backgroundTint="#8C8C8C"
+        android:text="Generation"
+        tools:layout_editor_absoluteX="154dp"
+        tools:layout_editor_absoluteY="16dp" />
+
+    <Button
+        android:id="@+id/Types"
+        android:layout_width="142dp"
+        android:layout_height="52dp"
+        android:backgroundTint="#8C8C8C"
+        android:text="Type"
+        tools:layout_editor_absoluteX="4dp"
+        tools:layout_editor_absoluteY="16dp" />
+
     <ImageView
-        android:id="@+id/imageView14"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@null"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/lib_top" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:id="@+id/imageView25"
+        android:layout_width="46dp"
+        android:layout_height="56dp"
+        app:srcCompat="@drawable/search"
+        tools:layout_editor_absoluteX="336dp"
+        tools:layout_editor_absoluteY="14dp" />

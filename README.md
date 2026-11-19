@@ -73,18 +73,27 @@ Second screen is the complete pokemon library for users to look for information 
 - `/app/src/main/java/com/example/scandex/pokemonlibrary.kt`
 - `/app/src/main/res/layout/activity_pokemonlibrary.xml`
 - `/app/src/main/res/drawable/`
-  - `lib_top.png`
-  - `To determine...`
+  - `tag_bg_xml`
+  - `pokemon_tag_xml`
+  - `pkm_type_xml`
+  - `search.png`
 
 ### Design & interface XML
 
-- This section describes the layout of the screen *
+This section describes the layout of the screen
 
 - **Main layout:** `ConstraintLayout`, to keep the interface
   responsive and maintain its proportions.
 - **Structure:**
-  - **Upper shell:** A red header to hold filtering features. including a search icon,
-  and a filter square that will show all filtering options for types, generation and so on.
-  - **Library** Grayish blue background (`#A9CDD5`)
-    Spands whole background for eye comfort and contras.
-  - **Filtering buttons (`Button`):** To determine...~~~~
+  - **Upper shell(`ImageView`):** A red header to hold filtering features. including a search icon to filter pokemon by name,
+  and 2 filtering squares to select type and generation.
+  - **Filtering buttons** (`Button`): 2 gray buttons that name either **type** or **gen** to filter between the options, as well as a search icon that will allow
+  for name filtering.
+  - **Library** Grayish blue background (`#A9CDD5`) Spands whole background for eye comfort and contrast 
+  with other features with bolder colors.
+  - **Favorite option(`Button`):** Uses a default star element from android studio, it is a button to add 
+  pokemon to a favorites list later on.
+  - **Pokemon tag (`#209ac9`):** The tag that will appear and hold every pokemon specifically, 
+  it contains name, type(s), picture, favorite icon, number and clasification, this is all id'd
+  so it may be reused when importing database connection, additionally, it is divided in 3 key sections, 
+  the background, the type box(es), and the information.~~~~
