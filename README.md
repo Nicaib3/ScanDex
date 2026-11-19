@@ -56,3 +56,35 @@ scanning the Pokemon that the user observes
     inside the screen frame (`PreviewView`).
   - When **CAPTURAR** is pressed, it takes a photo
     and saves it to the gallery in `Pictures/ScanDex`.
+
+## Second Screen
+
+### Purpose of the screen
+
+Second screen is the complete pokemon library for users to look for information on any pokemon they desire, will allow a middle point between scanning and looking at a pokemon's information directly through filtering and search
+
+### Function
+
+- **Goal:** Allow users to **filter** through all pokemon with a
+  **search** and **filtering** option, to then send them to that specific pokemon's **info screen**.
+
+### Structure File
+
+- `/app/src/main/java/com/example/scandex/pokemonlibrary.kt`
+- `/app/src/main/res/layout/activity_pokemonlibrary.xml`
+- `/app/src/main/res/drawable/`
+  - `lib_top.png`
+  - `To determine...`
+
+### Design & interface XML
+
+- This section describes the layout of the screen *
+
+- **Main layout:** `ConstraintLayout`, to keep the interface
+  responsive and maintain its proportions.
+- **Structure:**
+  - **Upper shell:** A red header to hold filtering features. including a search icon,
+  and a filter square that will show all filtering options for types, generation and so on.
+  - **Library** Grayish blue background (`#A9CDD5`)
+    Spands whole background for eye comfort and contras.
+  - **Filtering buttons (`Button`):** To determine...~~~~
