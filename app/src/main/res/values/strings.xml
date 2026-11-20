@@ -2,4 +2,9 @@
     <string name="app_name">ScanDex</string>
     <string name="hello_poke_world">Hello Poke-world!</string>
     <string name="take_picture">Tomar foto</string>
+    <string name="filter_type">Type</string>
+    <string name="filter_generation">Generation</string>
+    <string name="search_pokemon">Buscar Pokémon</string>
+    <string name="add_to_favorites">Agregar a favoritos</string>
+    <string name="pokemon_image">Pokemon Image</string>
 </resources>
