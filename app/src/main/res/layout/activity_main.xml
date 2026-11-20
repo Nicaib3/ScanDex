@@ -139,4 +139,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- Botón para abrir la biblioteca de Pokémon -->
+    <Button
+        android:id="@+id/btnLibrary"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:backgroundTint="#43A047"
+        android:text="@string/open_library"
+        android:textColor="#FFFFFF"
+        app:cornerRadius="24dp"
+        app:layout_constraintBottom_toBottomOf="@+id/btnCapture"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btnCapture"
+        app:layout_constraintTop_toTopOf="@+id/btnCapture" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

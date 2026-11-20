@@ -7,4 +7,5 @@
     <string name="search_pokemon">Buscar Pokémon</string>
     <string name="add_to_favorites">Agregar a favoritos</string>
     <string name="pokemon_image">Pokemon Image</string>
+    <string name="open_library">Biblioteca</string>
 </resources>

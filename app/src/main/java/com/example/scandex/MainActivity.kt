@@ -2,6 +2,7 @@ package com.example.scandex
 
 import android.Manifest
 import android.content.ContentValues
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -60,6 +61,9 @@ class   MainActivity : AppCompatActivity() {
         previewView = findViewById(R.id.cameraPreview)
         btnCapture = findViewById(R.id.btnCapture)
         btnCapture.setOnClickListener { takePhoto() }
+        findViewById<Button>(R.id.btnLibrary).setOnClickListener {
+            startActivity(Intent(this, pokemonlibrary::class.java))
+        }
 
         if (allPermissionsGranted()) startCamera() else permissionLauncher.launch(requiredPermissions)
     }
