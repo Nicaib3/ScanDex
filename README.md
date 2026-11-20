@@ -43,6 +43,8 @@ scanning the Pokemon that the user observes
     with different colors, reserved for future options.
   - **Picture Button (`Button`):** Blue circle button in the center,
     above the 4 action buttons, used to take the picture.
+  - **Library Button (`Button` - `btnLibrary`):** Green pill button
+    next to `btnCapture` that opens the Pokémon Library screen.
 
 ### Logic kt
 
@@ -56,6 +58,8 @@ scanning the Pokemon that the user observes
     inside the screen frame (`PreviewView`).
   - When **CAPTURAR** is pressed, it takes a photo
     and saves it to the gallery in `Pictures/ScanDex`.
+  - When **Biblioteca** (`btnLibrary`) is pressed, it launches
+    `pokemonlibrary` via `Intent`.
 
 ## Second Screen
 
@@ -65,18 +69,22 @@ Second screen is the complete pokemon library for users to look for information 
 
 ### Function
 
-- **Goal:** Allow users to **filter** through all pokemon with a
-  **search** and **filtering** option, to then send them to that specific pokemon's **info screen**.
+- **Goal:** Display the **151 Generation 1 Pokémon** fetched from **PokéAPI v2**
+  using reusable `pokemon_tag` panels, supporting locked/unlocked states
+  and preparing **search** and **filtering** options.
 
 ### Structure File
 
 - `/app/src/main/java/com/example/scandex/pokemonlibrary.kt`
+- `/app/src/main/java/com/example/scandex/PokeApiService.kt`
 - `/app/src/main/res/layout/activity_pokemonlibrary.xml`
+- `/app/src/main/res/layout/pokemon_tag.xml`
 - `/app/src/main/res/drawable/`
-  - `tag_bg_xml`
-  - `pokemon_tag_xml`
-  - `pkm_type_xml`
+  - `lib_top.xml`
+  - `tag_bg.xml`
+  - `pkm_type.xml`
   - `search.png`
+- `/app/src/main/AndroidManifest.xml` (`INTERNET` permission)
 
 ### Design & interface XML
 
@@ -85,15 +93,20 @@ This section describes the layout of the screen
 - **Main layout:** `ConstraintLayout`, to keep the interface
   responsive and maintain its proportions.
 - **Structure:**
-  - **Upper shell(`ImageView`):** A red header to hold filtering features. including a search icon to filter pokemon by name,
-  and 2 filtering squares to select type and generation.
-  - **Filtering buttons** (`Button`): 2 gray buttons that name either **type** or **gen** to filter between the options, as well as a search icon that will allow
-  for name filtering.
-  - **Library** Grayish blue background (`#A9CDD5`) Spands whole background for eye comfort and contrast 
-  with other features with bolder colors.
-  - **Favorite option(`Button`):** Uses a default star element from android studio, it is a button to add 
-  pokemon to a favorites list later on.
-  - **Pokemon tag (`#209ac9`):** The tag that will appear and hold every pokemon specifically, 
-  it contains name, type(s), picture, favorite icon, number and clasification, this is all id'd
-  so it may be reused when importing database connection, additionally, it is divided in 3 key sections, 
-  the background, the type box(es), and the information.~~~~
+  - **Upper shell (`View` - `topBar`):** A red header (`lib_top.xml`) holding filtering features, including a search icon (`imageView25`) and 2 filtering buttons (`Types` and `Gen`).
+  - **Filtering buttons (`Button`):** `Types` and `Gen` gray buttons constrained horizontally inside `topBar`.
+  - **Library background:** Grayish blue background (`#A9CDD5`) across the screen for eye comfort and contrast.
+  - **Scrollable list (`ScrollView` - `scrollPokemon`):** Contains a vertical `LinearLayout` (`pokemonContainer`) where each `pokemon_tag` card is dynamically inflated, plus a centered `ProgressBar` (`progressBar`) while the initial list loads.
+  - **Pokemon tag (`pokemon_tag.xml`, `#209ac9`):** Reusable card holding Pokédex number (`tvPokenum`), name (`tvPokename`), favorite toggle (`btnfav`), description (`tvDescripcionPokemon`), up to two type badges (`tvtype1`, `tvtype2`), and sprite image (`ivPokeimage`).
+
+### Logic kt
+
+- **Main classes:** `pokemonlibrary.kt` and `PokeApiService.kt`
+- **Behavior:**
+  - `PokeApiService.kt` connects to the **PokéAPI** to get the 151 Pokémon from Generation 1, plus each Pokémon's name, types, height, weight, and image.
+  - `pokemonlibrary.kt` creates one `pokemon_tag` panel for each of the 151 Pokémon inside `pokemonContainer`.
+  - It loads the image, name, description, and types for each Pokémon in the background and updates the panels as they arrive.
+  - Each Pokémon has an `isLocked` property (`true` for even numbers, `false` for odd numbers):
+    - If `isLocked` is `true`, the image turns black and the name and description are hidden.
+    - If `isLocked` is `false`, the image, name, and description are shown normally.
+  - Pressing the star button (`btnfav`) marks or unmarks the Pokémon as a favorite.
