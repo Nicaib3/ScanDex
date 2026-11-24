@@ -110,3 +110,43 @@ This section describes the layout of the screen
     - If `isLocked` is `true`, the image turns black and the name and description are hidden.
     - If `isLocked` is `false`, the image, name, and description are shown normally.
   - Pressing the star button (`btnfav`) marks or unmarks the Pokémon as a favorite.
+
+## Third Screen
+
+### Purpose of the screen
+
+This screen will be reused for every and all pokemon on the database, it shows all the info that we
+concluded is indispensable and usefull for anyone in a situation that we deemed was favorable for
+the app
+
+### Function
+
+- **Goal:** 
+- Display information on all pokemon supported at any given time, connect with other screens
+with the capability o adding to favorites, information on abilities and other pokemon, as well as moves.
+- Have compatibility to change placeholder information to fit any pokemon selected
+
+### Structure File
+
+- `/app/src/main/java/com/example/scandex/activity_pokeinfo.xml`
+- `/app/src/main/java/com/example/scandex/pokeinfo.kt`
+- `/app/src/main/java/com/example/scandex/gh_circle_info.xml`
+- `/app/src/main/java/com/example/scandex/bg_pokeino_card.xml`
+- `/app/src/main/java/com/example/scandex/bg_pokeinfo_pill.xml`
+- `/app/src/main/java/com/example/scandex/drawable/poekinfo_top.png`
+- `/app/src/main/java/com/example/scandex/drawable/bg_info_gradient.xml`
+- `/app/src/main/java/com/example/scandex/drawable/bg_pokeinfo_pill.png`
+
+### Design & interface XML
+
+This section describes the layout of the screen
+
+- **Main layout:** `ConstraintLayout`, to keep the interface responsive and maintain its proportions.
+- **Structure:**
+  - **Background (`main #f57c7c`):** Salmon color background to not be confused with previous screen also sets presedent for this ones color scheme
+  - **Top half circle (`ImageView`):** A lighter salmon color half circle for design and holds on top of pokemon imageview
+  - **Outside info** Uses `pill` boxes for the type(s) of the pokemon along with textviews for number and name
+  - **Boxed info** Uses a background in a color that matches the rest of the color scheme (`#D94E4E`) to hold information within each of them, going from pokedex inormation,
+ abilities, stats, evolution line, and type weaknesses
+  - **Side menu:** Ability to scroll to the side, access all type information importing the pill atribute
+  from before, as per not overcrowding the main pokeinfo screen.
