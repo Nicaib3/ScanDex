@@ -94,7 +94,7 @@ class pokemonlibrary : AppCompatActivity() {
         tvDesc.text = "Generación I"
         tvType1.text = "..."
         tvType2.visibility = View.GONE
-        applyLockState(pokemon.isLocked, tvName, tvDesc, ivImage)
+        applyLockState(!UnlockedPokemonStore.isUnlocked(this, pokemon.id), tvName, tvDesc, ivImage)
 
         btnFav.setOnClickListener {
             val isFav = if (favoriteIds.contains(pokemon.id)) {
@@ -150,7 +150,7 @@ class pokemonlibrary : AppCompatActivity() {
                     if (bitmap != null) {
                         ivImage.setImageBitmap(bitmap)
                     }
-                    applyLockState(detail.isLocked, tvName, tvDesc, ivImage)
+                    applyLockState(!UnlockedPokemonStore.isUnlocked(this@pokemonlibrary, detail.id), tvName, tvDesc, ivImage)
                 }
             } catch (e: Exception) {
                 Log.w(TAG, "No se pudo cargar detalle de #$pokemonId", e)
