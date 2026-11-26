@@ -2,6 +2,7 @@ package com.example.scandex
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.Log
 import com.google.mediapipe.framework.image.BitmapImageBuilder
 import com.google.mediapipe.tasks.core.BaseOptions
 import com.google.mediapipe.tasks.vision.core.RunningMode
@@ -177,7 +178,7 @@ class PokemonEmbedder(private val context: Context) {
         return baseDeDatosSubEstados.size
     }
 
-    fun identificarPokemon(foto: Bitmap, umbralMinimo: Float = 0.22f): ResultadoDeteccion {
+    fun identificarPokemon(foto: Bitmap, umbralMinimo: Float = 0.40f): ResultadoDeteccion {
         if (baseDeDatosSubEstados.isEmpty()) {
             return ResultadoDeteccion("JSON de secuencias vacío", 0, 0f, 0f, "", false)
         }
@@ -203,6 +204,18 @@ class PokemonEmbedder(private val context: Context) {
         val (mejorPokemon, mejorSimilitud) = puntajesPorPokemon[0]
         val segundoPar = puntajesPorPokemon.getOrNull(1)
 
+        // Diagnóstico temporal: cuánto aporta la forma y cuánto el color a la similitud (adb logcat -s ScanDex:D)
+        val nForma = secuenciaFoto.size - 18
+        val subMasCercano = baseDeDatosSubEstados.getValue(mejorPokemon)
+            .maxBy { calcularSimilitudCoseno(secuenciaFoto, it) }
+        var aporteForma = 0f
+        var aporteColor = 0f
+        for (i in secuenciaFoto.indices) {
+            val producto = secuenciaFoto[i] * subMasCercano[i]
+            if (i < nForma) aporteForma += producto else aporteColor += producto
+        }
+        Log.d("ScanDex", "mejor=$mejorPokemon total=$mejorSimilitud forma=$aporteForma color=$aporteColor")
+
         // Calculamos probabilidad contrastiva (Softmax con temperatura tau = 0.07)
         val tau = 0.07f
         var sumaExp = 0.0
@@ -217,7 +230,8 @@ class PokemonEmbedder(private val context: Context) {
             ""
         }
 
-        val esDetectado = mejorSimilitud >= umbralMinimo
+        // La clase 000_fondo (personas, mesas, paredes) se rechaza aunque pase el umbral
+        val esDetectado = mejorSimilitud >= umbralMinimo && !mejorPokemon.startsWith("000_")
         return ResultadoDeteccion(
             nombrePokemon = if (esDetectado) mejorPokemon.substringAfter("_").uppercase()
             else "No identificado",
