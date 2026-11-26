@@ -3,11 +3,14 @@ package com.example.scandex
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
-import com.google.mediapipe.framework.image.BitmapImageBuilder
-import com.google.mediapipe.tasks.core.BaseOptions
-import com.google.mediapipe.tasks.vision.core.RunningMode
-import com.google.mediapipe.tasks.vision.imageembedder.ImageEmbedder
-import com.google.mediapipe.tasks.vision.imageembedder.ImageEmbedder.ImageEmbedderOptions
+import android.os.SystemClock
+import org.json.JSONArray
+import org.tensorflow.lite.Interpreter
+import java.io.FileInputStream
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.nio.MappedByteBuffer
+import java.nio.channels.FileChannel
 import org.json.JSONObject
 import kotlin.math.exp
 import kotlin.math.sqrt
@@ -23,101 +26,71 @@ data class ResultadoDeteccion(
 
 class PokemonEmbedder(private val context: Context) {
 
-    private val embedder: ImageEmbedder
+    private val interprete: Interpreter
+
+    private val entrada: ByteBuffer = ByteBuffer.allocateDirect(LADO * LADO * 3 * 4)
+        .order(ByteOrder.nativeOrder())
+    private val pixeles = IntArray(LADO * LADO)
+    private val salida = Array(1) { FloatArray(DIMENSION) }
     private var mediaGlobalForma: FloatArray? = null
-    // Nombre del Pokémon -> Lista de sus K sub-estados híbridos normalizados (forma + color)
+    // Nombre de la clase -> Lista de sus K sub-estados de imagen (512 valores, incluye 000_fondo)
     private val baseDeDatosSubEstados = mutableMapOf<String, List<FloatArray>>()
+    private val textoPorClase = mutableMapOf<String, FloatArray>()
+    private val textoNegativas = mutableListOf<FloatArray>()
+    private var escalaLogit = 64.3f
+    private var pesoTexto = 0.5f
+    private var tauImagen = 0.07f
 
     companion object {
-        private const val PESO_FORMA = 0.80f
-        private const val PESO_COLOR = 0.60f
+        private const val TAG = "ScanDex"
+        private const val MODELO = "mobileclip2_s0_imagen_int8.tflite"
+        private const val LADO = 256
+        private const val DIMENSION = 512
+        private const val CLASE_FONDO = "000_fondo"
     }
 
     init {
-        val baseOptions = BaseOptions.builder()
-            .setModelAssetPath("mobilenet_v3_large.tflite")
-            .build()
-
-        val options = ImageEmbedderOptions.builder()
-            .setBaseOptions(baseOptions)
-            .setRunningMode(RunningMode.IMAGE)
-            .setL2Normalize(true)
-            .build()
-
-        embedder = ImageEmbedder.createFromOptions(context, options)
+        val opciones = Interpreter.Options().setNumThreads(4)
+        interprete = Interpreter(cargarModelo(MODELO), opciones)
     }
 
-    /**
-     * Extrae la secuencia híbrida centrada de 1042 valores:
-     * 1. Extrae los 1024 valores de forma (MobileNetV3), les resta la Media Global y los normaliza con L2.
-     * 2. Extrae los 18 valores de espectro cromático HSV del centro y los normaliza con L2.
-     * 3. Une ambos con sus pesos (0.80 forma / 0.60 color) y normaliza con L2.
-     */
-    fun extraerSecuenciaHibridaCentrada(bitmap: Bitmap): FloatArray {
-        val bitmapCompatible = if (bitmap.config == Bitmap.Config.ARGB_8888) {
+    /** Mapea el .tflite de assets a memoria sin copiarlo (requiere noCompress += "tflite"). */
+    private fun cargarModelo(nombre: String): MappedByteBuffer =
+        context.assets.openFd(nombre).use { descriptor ->
+            FileInputStream(descriptor.fileDescriptor).use { flujo ->
+                flujo.channel.map(
+                    FileChannel.MapMode.READ_ONLY,
+                    descriptor.startOffset,
+                    descriptor.declaredLength
+                )
+            }
+        }
+
+    /** Foto -> vector de 512 valores con norma 1. */
+    fun extraerVector(bitmap: Bitmap): FloatArray {
+        var imagen = if (bitmap.config == Bitmap.Config.ARGB_8888) {
             bitmap
         } else {
             bitmap.copy(Bitmap.Config.ARGB_8888, false)
         }
-
-        val mpImage = BitmapImageBuilder(bitmapCompatible).build()
-        val resultado = embedder.embed(mpImage)
-        val secFormaCruda = normalizarL2(resultado.embeddingResult().embeddings().first().floatEmbedding())
-        val secFormaCentrada = centrarYNormalizarForma(secFormaCruda)
-        val secColor = extraerHistogramaHsv18(bitmapCompatible)
-
-        val hibrida = FloatArray(secFormaCentrada.size + secColor.size)
-        for (i in secFormaCentrada.indices) {
-            hibrida[i] = secFormaCentrada[i] * PESO_FORMA
+        // Reducir a la mitad mientras sobre (promedia píxeles, como hace PIL al reducir)
+        while (minOf(imagen.width, imagen.height) >= LADO * 2) {
+            imagen = Bitmap.createScaledBitmap(imagen, imagen.width / 2, imagen.height / 2, true)
         }
-        for (i in secColor.indices) {
-            hibrida[secFormaCentrada.size + i] = secColor[i] * PESO_COLOR
+        val escalada = Bitmap.createScaledBitmap(imagen, LADO, LADO, true)
+        escalada.getPixels(pixeles, 0, LADO, 0, 0, LADO, LADO)
+
+        // NHWC: fila por fila, píxel por píxel, R G B en 0..1
+        entrada.rewind()
+        for (p in pixeles) {
+            entrada.putFloat(((p shr 16) and 0xFF) / 255f)
+            entrada.putFloat(((p shr 8) and 0xFF) / 255f)
+            entrada.putFloat((p and 0xFF) / 255f)
         }
+        entrada.rewind()
 
-        return normalizarL2(hibrida)
-    }
-
-    private fun extraerHistogramaHsv18(bitmap: Bitmap): FloatArray {
-        val w = bitmap.width
-        val h = bitmap.height
-        val x1 = (w * 0.20f).toInt()
-        val y1 = (h * 0.20f).toInt()
-        val cropW = (w * 0.60f).toInt().coerceAtLeast(1)
-        val cropH = (h * 0.60f).toInt().coerceAtLeast(1)
-
-        val recorte = Bitmap.createBitmap(bitmap, x1, y1, cropW, cropH)
-        val muestreado = Bitmap.createScaledBitmap(recorte, 64, 64, true)
-
-        val pixeles = IntArray(64 * 64)
-        muestreado.getPixels(pixeles, 0, 64, 0, 0, 64, 64)
-
-        val hist = FloatArray(18)
-
-        for (pixel in pixeles) {
-            val r = ((pixel shr 16) and 0xFF) / 255f
-            val g = ((pixel shr 8) and 0xFF) / 255f
-            val b = (pixel and 0xFF) / 255f
-
-            val maxC = maxOf(r, g, b)
-            val minC = minOf(r, g, b)
-            val delta = maxC - minC
-
-            val s = if (maxC > 1e-5f) delta / maxC else 0f
-            val v = maxC
-
-            // Ignoramos fondos blancos (baja saturación) y bordes negros (bajo brillo)
-            if (s > 0.18f && v > 0.15f && delta > 1e-5f) {
-                val hueDeg = when (maxC) {
-                    r -> (60f * ((g - b) / delta) + 360f) % 360f
-                    g -> 60f * (((b - r) / delta) + 2f)
-                    else -> 60f * (((r - g) / delta) + 4f)
-                }
-                val bin = ((hueDeg / 20f).toInt() % 18 + 18) % 18
-                hist[bin] += s
-            }
-        }
-
-        return normalizarL2(hist)
+        interprete.run(entrada, salida)
+        return normalizarL2(salida[0])
     }
 
     private fun normalizarL2(arreglo: FloatArray): FloatArray {
@@ -150,6 +123,28 @@ class PokemonEmbedder(private val context: Context) {
         val root = JSONObject(jsonTexto)
 
         baseDeDatosSubEstados.clear()
+        mediaGlobalForma = null
+        textoPorClase.clear()
+        textoNegativas.clear()
+
+        if (root.optInt("version", 1) < 2 || !root.has("texto")) {
+            Log.e(TAG, "$archivoJson tiene el formato viejo (MobileNet). Genera uno con generar_secuencias_clip.py")
+            return 0
+        }
+
+        escalaLogit = root.getDouble("logit_scale").toFloat()
+        pesoTexto = root.optDouble("peso_texto", 0.5).toFloat()
+        tauImagen = root.optDouble("tau_imagen", 0.07).toFloat()
+
+        val texto = root.getJSONObject("texto")
+        for (clase in texto.keys()) {
+            textoPorClase[clase] = aFloatArray(texto.getJSONArray(clase))
+        }
+
+        val negativas = root.getJSONArray("texto_negativas")
+        for (i in 0 until negativas.length()) {
+            textoNegativas.add(aFloatArray(negativas.getJSONArray(i)))
+        }
 
         if (root.has("media_global") && root.has("pokemones")) {
             val arrMedia = root.getJSONArray("media_global")
@@ -175,54 +170,36 @@ class PokemonEmbedder(private val context: Context) {
             }
         }
 
-        return baseDeDatosSubEstados.size
+        return textoPorClase.size   // solo Pokémon (000_fondo no cuenta)
     }
 
-    fun identificarPokemon(foto: Bitmap, umbralMinimo: Float = 0.40f): ResultadoDeteccion {
+    @Synchronized   // el intérprete no se puede usar desde dos hilos a la vez
+    fun identificarPokemon(foto: Bitmap, umbralMinimo: Float = 0.0f): ResultadoDeteccion {
         if (baseDeDatosSubEstados.isEmpty()) {
             return ResultadoDeteccion("JSON de secuencias vacío", 0, 0f, 0f, "", false)
         }
 
-        val secuenciaFoto = extraerSecuenciaHibridaCentrada(foto)
+        val inicio = SystemClock.elapsedRealtime()
+        val vector = extraerVector(foto)
+        val pTexto = probabilidadesTexto(vector)
+        val pImagen = probabilidadesImagen(vector)
 
-        // Calculamos la mejor similitud de cada Pokémon (su sub-estado más cercano a la foto)
-        val puntajesPorPokemon = mutableListOf<Pair<String, Float>>()
-
-        for ((nombre, listaSubEstados) in baseDeDatosSubEstados) {
-            var mejorSimSubEstado = -1f
-            for (subEstado in listaSubEstados) {
-                val sim = calcularSimilitudCoseno(secuenciaFoto, subEstado)
-                if (sim > mejorSimSubEstado) {
-                    mejorSimSubEstado = sim
-                }
-            }
-            puntajesPorPokemon.add(nombre to mejorSimSubEstado)
-        }
-
-        puntajesPorPokemon.sortByDescending { it.second }
+        val clases = textoPorClase.keys + baseDeDatosSubEstados.keys + CLASE_FONDO
+        val puntajesPorPokemon = clases.map { clase ->
+            clase to pesoTexto * (pTexto[clase] ?: 0f) + (1f - pesoTexto) * (pImagen[clase] ?: 0f)
+        }.sortedByDescending { it.second }
 
         val (mejorPokemon, mejorSimilitud) = puntajesPorPokemon[0]
         val segundoPar = puntajesPorPokemon.getOrNull(1)
+        val certezaContrastiva = mejorSimilitud - (segundoPar?.second ?: 0f)   // margen 1° - 2°
 
-        // Diagnóstico temporal: cuánto aporta la forma y cuánto el color a la similitud (adb logcat -s ScanDex:D)
-        val nForma = secuenciaFoto.size - 18
-        val subMasCercano = baseDeDatosSubEstados.getValue(mejorPokemon)
-            .maxBy { calcularSimilitudCoseno(secuenciaFoto, it) }
-        var aporteForma = 0f
-        var aporteColor = 0f
-        for (i in secuenciaFoto.indices) {
-            val producto = secuenciaFoto[i] * subMasCercano[i]
-            if (i < nForma) aporteForma += producto else aporteColor += producto
-        }
-        Log.d("ScanDex", "mejor=$mejorPokemon total=$mejorSimilitud forma=$aporteForma color=$aporteColor")
-
-        // Calculamos probabilidad contrastiva (Softmax con temperatura tau = 0.07)
-        val tau = 0.07f
-        var sumaExp = 0.0
-        for ((_, sim) in puntajesPorPokemon) {
-            sumaExp += exp(((sim - mejorSimilitud) / tau).toDouble())
-        }
-        val certezaContrastiva = (1.0 / sumaExp).toFloat()
+        Log.d(
+            TAG, "mejor=$mejorPokemon p=%.3f texto=%.3f imagen=%.3f | 2do=%s %.3f | %d ms".format(
+                mejorSimilitud, pTexto[mejorPokemon] ?: 0f, pImagen[mejorPokemon] ?: 0f,
+                segundoPar?.first ?: "-", segundoPar?.second ?: 0f,
+                SystemClock.elapsedRealtime() - inicio
+            )
+        )
 
         val textoSegundo = if (segundoPar != null) {
             "2° lugar: ${segundoPar.first} (${(segundoPar.second * 100).toInt()}%)"
@@ -230,7 +207,6 @@ class PokemonEmbedder(private val context: Context) {
             ""
         }
 
-        // La clase 000_fondo (personas, mesas, paredes) se rechaza aunque pase el umbral
         val esDetectado = mejorSimilitud >= umbralMinimo && !mejorPokemon.startsWith("000_")
         return ResultadoDeteccion(
             nombrePokemon = if (esDetectado) mejorPokemon.substringAfter("_").uppercase()
@@ -242,6 +218,46 @@ class PokemonEmbedder(private val context: Context) {
             detectado = esDetectado
         )
     }
+
+    private fun probabilidadesTexto(vector: FloatArray): Map<String, Float> {
+        val nombres = textoPorClase.keys.toList()
+        val logits = DoubleArray(nombres.size + textoNegativas.size)
+        for (i in nombres.indices) {
+            logits[i] = (escalaLogit * calcularSimilitudCoseno(vector, textoPorClase.getValue(nombres[i]))).toDouble()
+        }
+        for (j in textoNegativas.indices) {
+            logits[nombres.size + j] = (escalaLogit * calcularSimilitudCoseno(vector, textoNegativas[j])).toDouble()
+        }
+        val p = softmax(logits)
+
+        val resultado = mutableMapOf<String, Float>()
+        for (i in nombres.indices) resultado[nombres[i]] = p[i].toFloat()
+        var fondo = 0.0
+        for (j in nombres.size until p.size) fondo += p[j]
+        resultado[CLASE_FONDO] = fondo.toFloat()
+        return resultado
+    }
+
+    private fun probabilidadesImagen(vector: FloatArray): Map<String, Float> {
+        val centrado = centrarYNormalizarForma(vector)
+        val nombres = baseDeDatosSubEstados.keys.toList()
+        val logits = DoubleArray(nombres.size) { i ->
+            val mejor = baseDeDatosSubEstados.getValue(nombres[i]).maxOf { calcularSimilitudCoseno(centrado, it) }
+            (mejor / tauImagen).toDouble()
+        }
+        val p = softmax(logits)
+        return nombres.indices.associate { i -> nombres[i] to p[i].toFloat() }
+    }
+
+    private fun softmax(logits: DoubleArray): DoubleArray {
+        val maximo = logits.maxOrNull() ?: 0.0
+        val e = DoubleArray(logits.size) { i -> exp(logits[i] - maximo) }
+        val suma = e.sum()
+        return DoubleArray(e.size) { i -> e[i] / suma }
+    }
+
+    private fun aFloatArray(arr: JSONArray): FloatArray =
+        FloatArray(arr.length()) { i -> arr.getDouble(i).toFloat() }
 
     private fun calcularSimilitudCoseno(secuenciaA: FloatArray, secuenciaB: FloatArray): Float {
         val n = minOf(secuenciaA.size, secuenciaB.size)
