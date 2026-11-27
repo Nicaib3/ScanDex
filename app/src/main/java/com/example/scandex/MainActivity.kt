@@ -83,6 +83,9 @@ class   MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.button).setOnClickListener {
             Toast.makeText(this, "Creador de equipos aún no disponible", Toast.LENGTH_SHORT).show()
         }
+        findViewById<Button>(R.id.button4).setOnClickListener {
+            startActivity(Intent(this, others::class.java))
+        }
 
         if (allPermissionsGranted()) startCamera() else permissionLauncher.launch(requiredPermissions)
     }

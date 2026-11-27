@@ -43,7 +43,14 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#000000"
-            app:scaleType="fillCenter" />
+            app:scaleType="fillCenter" >
+
+            <Button
+                android:id="@+id/button4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="items/habilidades" />
+        </androidx.camera.view.PreviewView>
     </FrameLayout>
 
     <ImageView
@@ -160,13 +167,5 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/btnCapture"
         app:layout_constraintVertical_bias="1.0" />
-
-    <Button
-        android:id="@+id/button4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="items/habilidades"
-        tools:layout_editor_absoluteX="232dp"
-        tools:layout_editor_absoluteY="715dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
