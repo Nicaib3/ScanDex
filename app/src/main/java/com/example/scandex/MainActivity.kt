@@ -114,7 +114,7 @@ class   MainActivity : AppCompatActivity() {
             }
         }, ContextCompat.getMainExecutor(this))
     }
-    /** Identifica el Pokémon del visor, lo desbloquea, abre su ficha y guarda la foto. */
+    /** Identifica el Pokémon del visor, lo desbloquea, abre su ficha */
     private fun scanAndCapturePokemon() {
         val motor = pokemonEmbedder
         val bitmap = previewView.bitmap
@@ -123,6 +123,7 @@ class   MainActivity : AppCompatActivity() {
             val recorte = Bitmap.createBitmap(
                 bitmap, (bitmap.width - lado) / 2, (bitmap.height - lado) / 2, lado, lado
             )
+            btnCapture.isEnabled = false
             Thread {
                 val res = motor.identificarPokemon(recorte)
                 Log.d(TAG, "scan → ${res.nombrePokemon} sim=${"%.3f".format(res.similitudDirecta)} certeza=${"%.3f".format(res.certeza)} | ${res.segundoLugar} | detectado=${res.detectado}")
@@ -130,6 +131,7 @@ class   MainActivity : AppCompatActivity() {
                     PokemonEncounterStore.registerEncounter(this, res.pokemonId)
                 }
                 runOnUiThread {
+                    btnCapture.isEnabled = true
                     if (res.detectado && res.pokemonId > 0) {
                         val pct = (res.similitudDirecta * 100).toInt()
                         tvTitle.text = "¡${res.nombrePokemon} ($pct%)!"
@@ -143,45 +145,7 @@ class   MainActivity : AppCompatActivity() {
                 }
             }.start()
         }
-        takePhoto()
     }
-    /** Toma una foto y la guarda en la galería (Pictures/ScanDex). */
-    private fun takePhoto() {
-        val capture = imageCapture ?: return
-
-        val name = SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(System.currentTimeMillis())
-        val values = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/ScanDex")
-            }
-        }
-
-        val outputOptions = ImageCapture.OutputFileOptions.Builder(
-            contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values
-        ).build()
-
-        btnCapture.isEnabled = false
-        capture.takePicture(
-            outputOptions,
-            ContextCompat.getMainExecutor(this),
-            object : ImageCapture.OnImageSavedCallback {
-                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    btnCapture.isEnabled = true
-                    Toast.makeText(this@MainActivity, "Foto guardada en galería", Toast.LENGTH_SHORT).show()
-                    Log.d(TAG, "Foto guardada: ${output.savedUri}")
-                }
-
-                override fun onError(exc: ImageCaptureException) {
-                    btnCapture.isEnabled = true
-                    Toast.makeText(this@MainActivity, "Error: ${exc.message}", Toast.LENGTH_LONG).show()
-                    Log.e(TAG, "Error al tomar foto", exc)
-                }
-            }
-        )
-    }
-
     companion object {
         private const val TAG = "ScanDex"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
