@@ -8,4 +8,6 @@
 <full-backup-content>
     <exclude domain="file" path="scandex_encounters.bin" />
     <exclude domain="file" path="scandex_encounters.bin.tmp" />
+    <exclude domain="file" path="scandex_teams.bin" />
+    <exclude domain="file" path="scandex_teams.bin.tmp" />
 </full-backup-content>

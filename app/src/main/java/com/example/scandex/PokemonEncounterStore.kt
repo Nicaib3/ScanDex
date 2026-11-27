@@ -25,14 +25,107 @@ data class PokemonEncounter(
 )
 
 /**
- * Motor interno que guarda encuentros en un archivo privado cifrado con AES-256-GCM.
+ * Helper compartido para leer/escribir archivos privados cifrados con AES-256-GCM.
  */
-internal class LocalEncounterStorage(
+internal class EncryptedAppFile(
     private val file: File,
     private val throwOnCorruption: Boolean = false,
     private val onCorruption: ((Exception) -> Unit)? = null,
     private val keyProvider: () -> SecretKey
 ) {
+    fun <T> readOrNull(decode: (ByteArray) -> T): T? {
+        if (!file.exists()) return null
+        return try {
+            decode(decrypt(file.readBytes()))
+        } catch (e: Exception) {
+            if (throwOnCorruption) throw e
+            onCorruption?.invoke(e)
+            delete()
+            null
+        }
+    }
+
+    fun writeAtomic(plaintext: ByteArray) {
+        file.parentFile?.mkdirs()
+        val tmp = File(file.parentFile, "${file.name}.tmp")
+        tmp.writeBytes(encrypt(plaintext))
+
+        if (!tmp.renameTo(file)) {
+            file.delete()
+            if (!tmp.renameTo(file)) {
+                tmp.delete()
+                throw IOException("No se pudo guardar ${file.name}")
+            }
+        }
+    }
+
+    fun delete() {
+        File(file.parentFile, "${file.name}.tmp").delete()
+        file.delete()
+    }
+
+    private fun encrypt(plaintext: ByteArray): ByteArray {
+        val cipher = Cipher.getInstance(CIPHER_MODE)
+        cipher.init(Cipher.ENCRYPT_MODE, keyProvider())
+        val iv = cipher.iv
+        val ciphertext = cipher.doFinal(plaintext)
+        return byteArrayOf(iv.size.toByte()) + iv + ciphertext
+    }
+
+    private fun decrypt(payload: ByteArray): ByteArray {
+        if (payload.size < 1 + MIN_IV_BYTES + GCM_TAG_BYTES) {
+            throw GeneralSecurityException("Archivo cifrado incompleto")
+        }
+        val ivLen = payload[0].toInt() and 0xFF
+        val dataStart = 1 + ivLen
+        if (ivLen < MIN_IV_BYTES || dataStart + GCM_TAG_BYTES > payload.size) {
+            throw GeneralSecurityException("IV inválido en archivo cifrado")
+        }
+        val iv = payload.copyOfRange(1, dataStart)
+        val ciphertext = payload.copyOfRange(dataStart, payload.size)
+
+        val cipher = Cipher.getInstance(CIPHER_MODE)
+        cipher.init(Cipher.DECRYPT_MODE, keyProvider(), GCMParameterSpec(GCM_TAG_BITS, iv))
+        return cipher.doFinal(ciphertext)
+    }
+
+    companion object {
+        private const val CIPHER_MODE = "AES/GCM/NoPadding"
+        private const val MIN_IV_BYTES = 12
+        private const val GCM_TAG_BYTES = 16
+        private const val GCM_TAG_BITS = 128
+        private const val KEYSTORE_PROVIDER = "AndroidKeyStore"
+        private val keyLock = Any()
+
+        fun getOrCreateAesKey(alias: String): SecretKey = synchronized(keyLock) {
+            val keyStore = KeyStore.getInstance(KEYSTORE_PROVIDER).apply { load(null) }
+            (keyStore.getKey(alias, null) as? SecretKey)?.let { return it }
+
+            val generator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_PROVIDER)
+            val spec = KeyGenParameterSpec.Builder(
+                alias,
+                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+            )
+                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                .setKeySize(256)
+                .build()
+            generator.init(spec)
+            return generator.generateKey()
+        }
+    }
+}
+
+/**
+ * Motor interno que guarda encuentros en un archivo privado cifrado con AES-256-GCM.
+ */
+internal class LocalEncounterStorage(
+    file: File,
+    throwOnCorruption: Boolean = false,
+    onCorruption: ((Exception) -> Unit)? = null,
+    keyProvider: () -> SecretKey
+) {
+    private val encryptedFile = EncryptedAppFile(file, throwOnCorruption, onCorruption, keyProvider)
     private val lock = Any()
     private var cache: MutableMap<Int, PokemonEncounter>? = null
 
@@ -60,7 +153,7 @@ internal class LocalEncounterStorage(
                 )
             }
             updated[pokemonId] = next
-            saveLocked(updated)
+            encryptedFile.writeAtomic(serialize(updated))
             cache = updated
             return next
         }
@@ -80,68 +173,16 @@ internal class LocalEncounterStorage(
 
     fun clearAll() {
         synchronized(lock) {
-            File(file.parentFile, "${file.name}.tmp").delete()
-            file.delete()
+            encryptedFile.delete()
             cache = LinkedHashMap()
         }
     }
 
     private fun loadLocked(): MutableMap<Int, PokemonEncounter> {
         cache?.let { return it }
-
-        val loaded = if (!file.exists()) {
-            LinkedHashMap()
-        } else {
-            try {
-                deserialize(decrypt(file.readBytes()))
-            } catch (e: Exception) {
-                if (throwOnCorruption) throw e
-                onCorruption?.invoke(e)
-                file.delete()
-                LinkedHashMap()
-            }
-        }
+        val loaded = encryptedFile.readOrNull(::deserialize) ?: LinkedHashMap()
         cache = loaded
         return loaded
-    }
-
-    private fun saveLocked(encounters: Map<Int, PokemonEncounter>) {
-        file.parentFile?.mkdirs()
-        val tmp = File(file.parentFile, "${file.name}.tmp")
-        tmp.writeBytes(encrypt(serialize(encounters)))
-
-        if (!tmp.renameTo(file)) {
-            file.delete()
-            if (!tmp.renameTo(file)) {
-                tmp.delete()
-                throw IOException("No se pudo guardar ${file.name}")
-            }
-        }
-    }
-
-    private fun encrypt(plaintext: ByteArray): ByteArray {
-        val cipher = Cipher.getInstance(CIPHER_MODE)
-        cipher.init(Cipher.ENCRYPT_MODE, keyProvider())
-        val iv = cipher.iv
-        val ciphertext = cipher.doFinal(plaintext)
-        return byteArrayOf(iv.size.toByte()) + iv + ciphertext
-    }
-
-    private fun decrypt(payload: ByteArray): ByteArray {
-        if (payload.size < 1 + MIN_IV_BYTES + GCM_TAG_BYTES) {
-            throw GeneralSecurityException("Archivo cifrado incompleto")
-        }
-        val ivLen = payload[0].toInt() and 0xFF
-        val dataStart = 1 + ivLen
-        if (ivLen < MIN_IV_BYTES || dataStart + GCM_TAG_BYTES > payload.size) {
-            throw GeneralSecurityException("IV inválido en archivo cifrado")
-        }
-        val iv = payload.copyOfRange(1, dataStart)
-        val ciphertext = payload.copyOfRange(dataStart, payload.size)
-
-        val cipher = Cipher.getInstance(CIPHER_MODE)
-        cipher.init(Cipher.DECRYPT_MODE, keyProvider(), GCMParameterSpec(GCM_TAG_BITS, iv))
-        return cipher.doFinal(ciphertext)
     }
 
     private fun serialize(encounters: Map<Int, PokemonEncounter>): ByteArray {
@@ -185,10 +226,6 @@ internal class LocalEncounterStorage(
     }
 
     companion object {
-        private const val CIPHER_MODE = "AES/GCM/NoPadding"
-        private const val MIN_IV_BYTES = 12
-        private const val GCM_TAG_BYTES = 16
-        private const val GCM_TAG_BITS = 128
         private const val SCHEMA_VERSION = 1
         private const val HEADER_BYTES = 8
         private const val RECORD_BYTES = 24
@@ -201,7 +238,6 @@ internal class LocalEncounterStorage(
  */
 object PokemonEncounterStore {
     private const val FILE_NAME = "scandex_encounters.bin"
-    private const val KEYSTORE_PROVIDER = "AndroidKeyStore"
     private const val KEY_ALIAS = "scandex_encounters_aes_key"
 
     @Volatile
@@ -239,25 +275,7 @@ object PokemonEncounterStore {
                 onCorruption = { error ->
                     Log.w("PokemonEncounterStore", "Archivo inválido o alterado; se reinicia el registro", error)
                 }
-            ) { getOrCreateKey() }.also { storage = it }
+            ) { EncryptedAppFile.getOrCreateAesKey(KEY_ALIAS) }.also { storage = it }
         }
-    }
-
-    @Synchronized
-    private fun getOrCreateKey(): SecretKey {
-        val keyStore = KeyStore.getInstance(KEYSTORE_PROVIDER).apply { load(null) }
-        (keyStore.getKey(KEY_ALIAS, null) as? SecretKey)?.let { return it }
-
-        val generator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_PROVIDER)
-        val spec = KeyGenParameterSpec.Builder(
-            KEY_ALIAS,
-            KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
-        )
-            .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
-            .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-            .setKeySize(256)
-            .build()
-        generator.init(spec)
-        return generator.generateKey()
     }
 }

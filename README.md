@@ -199,4 +199,4 @@ The fourth section lets users create, edit, search, and delete custom Pokémon t
   - When confirmed, `pickteam.kt` fills only the selected slots sequentially (`1` to `6`), keeping remaining slots empty, and updates the header counter (`tvTeamMembersHeader`).
   - `TeamPokeApiHelper.kt` fetches each member's base stats, sprite, and types from **PokéAPI v2** (`memberCache`) as well as type `damage_relations` (`typeCache`), then computes summed team stats (`calculateTeamStats`) and the top 3 team weaknesses and offensive coverage counts (`fetchTeamTypeBalance`).
   - Pressing `btnGuardarEquipo` validates the team name and at least 1 Pokémon before saving in `PokemonTeamStore`; pressing `btnEliminarEquipo` deletes the team.
-  - `PokemonTeamStore.kt` currently stores teams in memory via `TeamStoreManager` and provides `TeamStorageBackend`, `serialize`, and `deserialize` ready to connect encrypted local file persistence (`scandex_teams.bin`).
+  - `PokemonTeamStore.kt` persists teams in an encrypted private file (`scandex_teams.bin` in `filesDir`) via `LocalTeamStorage` and `EncryptedAppFile`, excluded from backups so data is deleted on uninstall.
