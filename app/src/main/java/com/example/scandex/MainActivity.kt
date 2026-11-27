@@ -126,20 +126,46 @@ class   MainActivity : AppCompatActivity() {
             Thread {
                 val res = motor.identificarPokemon(recorte)
                 Log.d(TAG, "scan → ${res.nombrePokemon} sim=${"%.3f".format(res.similitudDirecta)} certeza=${"%.3f".format(res.certeza)} | ${res.segundoLugar} | detectado=${res.detectado}")
-                if (res.detectado && res.pokemonId > 0) {
-                    PokemonEncounterStore.registerEncounter(this, res.pokemonId)
+                if (!res.detectado || res.pokemonId <= 0) {
+                    runOnUiThread {
+                        btnCapture.isEnabled = true
+                        Toast.makeText(this, res.nombrePokemon, Toast.LENGTH_SHORT).show()   // "No identificado": no abre nada
+                    }
+                    return@Thread
                 }
+
+                PokemonEncounterStore.registerEncounter(this, res.pokemonId)
+                val pct = (res.similitudDirecta * 100).toInt()
                 runOnUiThread {
+                    Toast.makeText(this, "¡${res.nombrePokemon} ($pct%)! Cargando ficha…", Toast.LENGTH_SHORT).show()
+                }
+
+                // Descargar la ficha completa ANTES de abrirla, para que se vea ya terminada
+                val fichaLista = try {
+                    PokeApiService.obtenerFichaCompleta(res.pokemonId)
+                    true
+                } catch (e: Exception) {
+                    Log.e(TAG, "No se pudo descargar la ficha de #${res.pokemonId}", e)
+                    false
+                }
+
+                runOnUiThread {
+                    if (isFinishing || isDestroyed) return@runOnUiThread
                     btnCapture.isEnabled = true
-                    if (res.detectado && res.pokemonId > 0) {
-                        val pct = (res.similitudDirecta * 100).toInt()
-                        Toast.makeText(this, "¡${res.nombrePokemon} ($pct%)!", Toast.LENGTH_SHORT).show()
+                    if (fichaLista) {
                         startActivity(
                             Intent(this, pokeinfo::class.java)
                                 .putExtra("pokemonId", res.pokemonId)
+                                // El escáner da el nombre en MAYÚSCULAS; se formatea como la API ("Pikachu")
+                                .putExtra("nombre", res.nombrePokemon.lowercase()
+                                    .replaceFirstChar { it.titlecase() })
                         )
                     } else {
-                        Toast.makeText(this, res.nombrePokemon, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this,
+                            "¡${res.nombrePokemon} registrado! No se pudo cargar la ficha. Revisa tu conexión a internet.",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 }
             }.start()

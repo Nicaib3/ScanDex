@@ -7,6 +7,7 @@ import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
 
 data class PokemonSummary(
     val id: Int,
@@ -73,11 +74,34 @@ data class PokemonFullInfo(
     val moves: List<PokemonMoveSummary>
 )
 
+/** Todo lo necesario para pintar la ficha de un Pokémon: datos + imágenes ya descargadas. */
+data class PokemonFichaCompleta(
+    val info: PokemonFullInfo,
+    val sprite: Bitmap?,
+    val evoSprites: List<Bitmap?>
+)
+
 object PokeApiService {
 
     const val GEN_1_COUNT = 151
     private const val BASE_URL = "https://pokeapi.co/api/v2"
     private const val TIMEOUT_MS = 10_000
+
+    // Caché en memoria de fichas ya descargadas (se pierde al cerrar la app)
+    private val fichaCache = ConcurrentHashMap<Int, PokemonFichaCompleta>()
+
+    /** Devuelve la ficha si ya fue descargada, o null si no está en caché. */
+    fun fichaEnCache(id: Int): PokemonFichaCompleta? = fichaCache[id]
+
+    fun obtenerFichaCompleta(id: Int): PokemonFichaCompleta {
+        fichaCache[id]?.let { return it }
+        val info = fetchPokemonFullInfo(id)
+        val sprite = info.spriteUrl?.let { downloadBitmap(it) }
+        val evoSprites = info.evolutions.map { stage ->
+            stage.spriteUrl?.let { downloadBitmap(it) }
+        }
+        return PokemonFichaCompleta(info, sprite, evoSprites).also { fichaCache[id] = it }
+    }
 
     fun fetchGen1PokemonList(): List<PokemonSummary> {
         val json = getJson("$BASE_URL/pokemon?limit=$GEN_1_COUNT&offset=0")

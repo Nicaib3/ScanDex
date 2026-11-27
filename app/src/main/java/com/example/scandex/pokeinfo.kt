@@ -53,11 +53,15 @@ class pokeinfo : AppCompatActivity() {
         val nombreInicial = intent.getStringExtra("nombre")
         val tipo1Extra = intent.getStringExtra("tipo1")
         val tipo2Extra = intent.getStringExtra("tipo2")
-        val tipo1 = tipo1Extra ?: "WATER"
-        val tipo2 = if (tipo1Extra == null && tipo2Extra == null) "DARK" else tipo2Extra
 
-        aplicarFondoPorTipos(mainScrollView, tipo1, tipo2)
-        mostrarTipos(listOfNotNull(tipo1, tipo2))
+        if (tipo1Extra != null) {
+            // Venimos de la biblioteca: ya conocemos los tipos reales
+            aplicarFondoPorTipos(mainScrollView, tipo1Extra, tipo2Extra)
+            mostrarTipos(listOfNotNull(tipo1Extra, tipo2Extra))
+        } else {
+            // Venimos del escáner: los tipos llegan después con la PokeAPI
+            mostrarTipos(emptyList())
+        }
         findViewById<TextView>(R.id.pokenum2).text = String.format(Locale.US, "#%03d", pokemonId)
         if (!nombreInicial.isNullOrBlank()) {
             findViewById<TextView>(R.id.tvpokename2).text = nombreInicial
@@ -93,25 +97,18 @@ class pokeinfo : AppCompatActivity() {
     }
 
     private fun cargarPokemon(pokemonId: Int, mainScrollView: ScrollView) {
+        // Si la ficha ya se descargó (p. ej. desde el escáner), se pinta al instante
+        val fichaEnCache = PokeApiService.fichaEnCache(pokemonId)
+        if (fichaEnCache != null) {
+            mostrarFicha(mainScrollView, fichaEnCache)
+            return
+        }
+
+        // Si no (p. ej. desde la biblioteca), se descarga como antes
         executor.execute {
             try {
-                val info = PokeApiService.fetchPokemonFullInfo(pokemonId)
-                val mainBitmap = info.spriteUrl?.let { PokeApiService.downloadBitmap(it) }
-                val evoBitmaps = info.evolutions.map { stage ->
-                    stage.spriteUrl?.let { PokeApiService.downloadBitmap(it) }
-                }
-
-                enPantalla {
-                    mostrarDatosGenerales(mainScrollView, info, mainBitmap)
-                    mostrarTipos(info.types)
-                    mostrarHabilidades(info.abilities)
-                    mostrarEstadisticas(info)
-                    mostrarEvoluciones(info.evolutions, evoBitmaps)
-                    mostrarInteracciones(R.id.layoutWeaknesses, info.weaknesses)
-                    mostrarInteracciones(R.id.layoutStrengths, info.strengths)
-                    mostrarInteracciones(R.id.layoutResistances, info.resistances)
-                    mostrarMovimientos(info.moves)
-                }
+                val ficha = PokeApiService.obtenerFichaCompleta(pokemonId)
+                enPantalla { mostrarFicha(mainScrollView, ficha) }
             } catch (e: Exception) {
                 Log.e("PokeInfo", "Error al cargar Pokémon #$pokemonId", e)
                 enPantalla {
@@ -119,6 +116,20 @@ class pokeinfo : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    /** Pinta todas las secciones de la ficha con los datos ya descargados. */
+    private fun mostrarFicha(mainScrollView: ScrollView, ficha: PokemonFichaCompleta) {
+        val info = ficha.info
+        mostrarDatosGenerales(mainScrollView, info, ficha.sprite)
+        mostrarTipos(info.types)
+        mostrarHabilidades(info.abilities)
+        mostrarEstadisticas(info)
+        mostrarEvoluciones(info.evolutions, ficha.evoSprites)
+        mostrarInteracciones(R.id.layoutWeaknesses, info.weaknesses)
+        mostrarInteracciones(R.id.layoutStrengths, info.strengths)
+        mostrarInteracciones(R.id.layoutResistances, info.resistances)
+        mostrarMovimientos(info.moves)
     }
 
     private fun mostrarDatosGenerales(
