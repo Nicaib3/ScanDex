@@ -24,8 +24,8 @@
 
     <FrameLayout
         android:id="@+id/cameraFrame"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="445dp"
+        android:layout_height="659dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         android:background="#E0E0E0"
@@ -157,7 +157,9 @@
         app:cornerRadius="24dp"
         app:layout_constraintBottom_toBottomOf="@+id/btnCapture"
         app:layout_constraintEnd_toStartOf="@+id/btnCapture"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/btnCapture" />
+        app:layout_constraintTop_toTopOf="@+id/btnCapture"
+        app:layout_constraintVertical_bias="1.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
