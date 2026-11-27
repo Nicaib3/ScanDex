@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -77,14 +78,14 @@ class   MainActivity : AppCompatActivity() {
         }.start()
         btnCapture.setOnClickListener { scanAndCapturePokemon() }
 
-        findViewById<Button>(R.id.btnLibrary).setOnClickListener {
-            startActivity(Intent(this, pokemonlibrary::class.java))
+        mapOf(
+            R.id.btnLibrary to pokemonlibrary::class.java,
+            R.id.button4 to others::class.java
+        ).forEach { (id, activity) ->
+            findViewById<View>(id).setOnClickListener { startActivity(Intent(this, activity)) }
         }
-        findViewById<Button>(R.id.button).setOnClickListener {
+        findViewById<View>(R.id.button).setOnClickListener {
             Toast.makeText(this, "Creador de equipos aún no disponible", Toast.LENGTH_SHORT).show()
-        }
-        findViewById<Button>(R.id.button4).setOnClickListener {
-            startActivity(Intent(this, others::class.java))
         }
 
         if (allPermissionsGranted()) startCamera() else permissionLauncher.launch(requiredPermissions)
