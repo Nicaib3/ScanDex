@@ -60,6 +60,8 @@ scanning the Pokemon that the user observes
     and saves it to the gallery in `Pictures/ScanDex`.
   - When **Biblioteca** (`btnLibrary`) is pressed, it launches
     `pokemonlibrary` via `Intent`.
+  - When **Creador de equipos** (`button`) is pressed, it launches
+    `teambuilder` via `Intent`.
 
 ## Second Screen
 
@@ -110,6 +112,7 @@ This section describes the layout of the screen
     - If `isLocked` is `true`, the image turns black and the name and description are hidden.
     - If `isLocked` is `false`, the image, name, and description are shown normally.
   - Pressing the star button (`btnfav`) marks or unmarks the Pokémon as a favorite.
+  - When opened with `EXTRA_TEAM_PICKER_MODE = true`, it unlocks all 151 Pokémon and replaces `btnfav` with `+`/`-` (`btnTeamToggle`) to select up to 6 team members for `pickteam`.
 
 ## Third Screen
 
@@ -165,3 +168,35 @@ This section describes the layout of the screen
   - `pokeinfo.kt` loads the Pokémon image, evolution images, stats, type matchups, and moves in the background and updates the screen as the data arrives.
   - Pressing **Información** (`btnTabInfo`) or **Movimientos** (`btnTabMovimientos`) hides one section and shows the other.
   - Pressing an ability's `i` button or tapping a move opens a popup (`AlertDialog`) with its description or move details (`tipo`, `categoría`, `potencia`, `precisión`, `PP`, and `efecto`).
+
+## Fourth Screen
+
+### Purpose of the screen
+
+The fourth section lets users create, edit, search, and delete custom Pokémon teams of up to 6 members, showing each team's combined base stats and type matchup balance.
+
+### Function
+
+- **Goal:** Allow users to build teams from any of the **151 Generation 1 Pokémon** via the library picker, calculate total base stats and type weaknesses/strengths using **PokéAPI v2**, and manage saved teams through `PokemonTeamStore`.
+
+### Structure File
+
+- `/app/src/main/java/com/example/scandex/teambuilder.kt`
+- `/app/src/main/java/com/example/scandex/pickteam.kt`
+- `/app/src/main/java/com/example/scandex/PokemonTeamStore.kt`
+- `/app/src/main/java/com/example/scandex/TeamPokeApiHelper.kt`
+- `/app/src/main/java/com/example/scandex/pokemonlibrary.kt` (team picker mode)
+
+### Design & interface XML
+
+### Logic kt
+
+- **Main classes:** `teambuilder.kt`, `pickteam.kt`, `PokemonTeamStore.kt`, and `TeamPokeApiHelper.kt`
+- **Behavior:**
+  - `teambuilder.kt` loads teams from `PokemonTeamStore`, filters them live with `searchTeams`, and displays each saved team using `item_team.xml` (team name, `X / 6` counter, and member sprites cached in memory).
+  - Pressing `btnCrearEquipo` opens `pickteam.kt` to create a new team; tapping an existing team card opens `pickteam.kt` (`EXTRA_TEAM_ID`) to edit or delete it.
+  - In `pickteam.kt`, pressing **Seleccionar** (`btnSeleccionarPokemon`) or any of the 6 slots (`slotPoke1`–`slotPoke6`) launches `pokemonlibrary.kt` in team picker mode (`EXTRA_TEAM_PICKER_MODE = true`) with all 151 Pokémon unlocked and `+` / `-` buttons (`btnTeamToggle`) to select up to 6 members.
+  - When confirmed, `pickteam.kt` fills only the selected slots sequentially (`1` to `6`), keeping remaining slots empty, and updates the header counter (`tvTeamMembersHeader`).
+  - `TeamPokeApiHelper.kt` fetches each member's base stats, sprite, and types from **PokéAPI v2** (`memberCache`) as well as type `damage_relations` (`typeCache`), then computes summed team stats (`calculateTeamStats`) and the top 3 team weaknesses and offensive coverage counts (`fetchTeamTypeBalance`).
+  - Pressing `btnGuardarEquipo` validates the team name and at least 1 Pokémon before saving in `PokemonTeamStore`; pressing `btnEliminarEquipo` deletes the team.
+  - `PokemonTeamStore.kt` currently stores teams in memory via `TeamStoreManager` and provides `TeamStorageBackend`, `serialize`, and `deserialize` ready to connect encrypted local file persistence (`scandex_teams.bin`).
