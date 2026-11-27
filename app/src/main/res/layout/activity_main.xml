@@ -153,4 +153,12 @@
         app:layout_constraintStart_toEndOf="@+id/btnCapture"
         app:layout_constraintTop_toTopOf="@+id/btnCapture" />
 
+    <Button
+        android:id="@+id/button4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="items/habilidades"
+        tools:layout_editor_absoluteX="252dp"
+        tools:layout_editor_absoluteY="719dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

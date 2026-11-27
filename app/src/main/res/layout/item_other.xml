@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/cardOtherItem"
+    android:layout_width="match_parent"
+    android:layout_height="68dp"
+    android:layout_marginBottom="10dp"
+    android:background="@drawable/tag_bg"
+    android:clickable="true"
+    android:focusable="true"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp">
+
+    <!-- Sprite del Objeto (se ocultará con View.GONE cuando el ítem sea una Habilidad) -->
+    <ImageView
+        android:id="@+id/ivOtherIcon"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_marginEnd="12dp"
+        android:contentDescription="Icono de objeto"
+        android:scaleType="fitCenter"
+        android:src="@mipmap/ic_launcher" />
+
+    <TextView
+        android:id="@+id/tvOtherName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="Restos (Leftovers)"
+        android:textColor="#1A1D24"
+        android:textSize="17sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tvOtherCategory"
+        android:layout_width="96dp"
+        android:layout_height="28dp"
+        android:background="@drawable/pkm_type"
+        android:gravity="center"
+        android:text="OBJETO"
+        android:textColor="#FFFFFF"
+        android:textSize="11sp"
+        android:textStyle="bold" />
+
+</LinearLayout>
