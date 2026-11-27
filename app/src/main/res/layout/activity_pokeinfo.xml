@@ -32,7 +32,7 @@
             android:layout_marginTop="28dp"
             android:contentDescription="@string/pokemon_image"
             android:scaleType="fitCenter"
-            android:src="@mipmap/ic_launcher"
+            tools:src="@mipmap/ic_launcher"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -46,7 +46,7 @@
             android:shadowDx="0"
             android:shadowDy="2"
             android:shadowRadius="4"
-            android:text="Greninja"
+            tools:text="Greninja"
             android:textColor="#FFFFFF"
             android:textSize="42sp"
             android:textStyle="bold"
@@ -69,7 +69,7 @@
                 android:id="@+id/pokenum2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="#0658"
+                tools:text="#0658"
                 android:textColor="#E0F2FE"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -79,7 +79,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
-                android:text="Ninja Pokemon"
+                tools:text="Ninja Pokemon"
                 android:textColor="#FFFFFF"
                 android:textSize="20sp"
                 android:textStyle="bold" />
@@ -104,7 +104,7 @@
                 android:layout_weight="1"
                 android:background="@drawable/bg_pokeinfo_pill"
                 android:gravity="center"
-                android:text="WATER"
+                tools:text="WATER"
                 android:textColor="#FFFFFF"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -118,7 +118,7 @@
                 android:layout_weight="1"
                 android:background="@drawable/bg_pokeinfo_pill"
                 android:gravity="center"
-                android:text="DARK"
+                tools:text="DARK"
                 android:textColor="#FFFFFF"
                 android:textSize="14sp"
                 android:textStyle="bold"
@@ -202,7 +202,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:lineSpacingExtra="3dp"
-                    android:text="Crea estrellas ninja con agua comprimida. Cuando las hace girar a gran velocidad, parten en dos hasta el metal."
+                    tools:text="Crea estrellas ninja con agua comprimida. Cuando las hace girar a gran velocidad, parten en dos hasta el metal."
                     android:textColor="#2A2F3A"
                     android:textSize="14sp" />
 
@@ -232,7 +232,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="40.0 kg"
+                            tools:text="40.0 kg"
                             android:textColor="#1A1D24"
                             android:textSize="17sp"
                             android:textStyle="bold" />
@@ -258,7 +258,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="2dp"
-                            android:text="1.5 m"
+                            tools:text="1.5 m"
                             android:textColor="#1A1D24"
                             android:textSize="17sp"
                             android:textStyle="bold" />
@@ -301,7 +301,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Torrente (Normal)"
+                        tools:text="Torrente (Normal)"
                         android:textColor="#FFFFFF"
                         android:textSize="13sp"
                         android:textStyle="bold" />
@@ -336,7 +336,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Mutatipo (Oculta)"
+                        tools:text="Mutatipo (Oculta)"
                         android:textColor="#FFFFFF"
                         android:textSize="13sp"
                         android:textStyle="bold" />
@@ -371,7 +371,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="Fuerte Afecto (Especial)"
+                        tools:text="Fuerte Afecto (Especial)"
                         android:textColor="#FFFFFF"
                         android:textSize="13sp"
                         android:textStyle="bold" />
@@ -433,7 +433,7 @@
                         android:id="@+id/tvStatHp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="72"
+                        tools:text="72"
                         android:textColor="#FFFFFF"
                         android:textSize="13sp"
                         android:textStyle="bold" />
@@ -462,7 +462,7 @@
                         android:id="@+id/tvStatAtk"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="95"
+                        tools:text="95"
                         android:textColor="#FFFFFF"
                         android:textSize="13sp"
                         android:textStyle="bold" />
@@ -491,7 +491,7 @@
                         android:id="@+id/tvStatDef"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="67"
+                        tools:text="67"
                         android:textColor="#FFFFFF"
                         android:textSize="13sp"
                         android:textStyle="bold" />
@@ -520,7 +520,7 @@
                         android:id="@+id/tvStatSpAtk"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="103"
+                        tools:text="103"
                         android:textColor="#FFFFFF"
                         android:textSize="13sp"
                         android:textStyle="bold" />
@@ -549,7 +549,7 @@
                         android:id="@+id/tvStatSpDef"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="71"
+                        tools:text="71"
                         android:textColor="#FFFFFF"
                         android:textSize="13sp"
                         android:textStyle="bold" />
@@ -578,7 +578,7 @@
                         android:id="@+id/tvStatSpd"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="122"
+                        tools:text="122"
                         android:textColor="#FFFFFF"
                         android:textSize="13sp"
                         android:textStyle="bold" />
@@ -590,7 +590,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:gravity="center"
-                    android:text="TOTAL  530"
+                    tools:text="TOTAL  530"
                     android:textColor="#1A1D24"
                     android:textSize="14sp"
                     android:textStyle="bold" />
@@ -635,14 +635,14 @@
                             android:layout_width="68dp"
                             android:layout_height="68dp"
                             android:contentDescription="Etapa 1"
-                            android:src="@mipmap/ic_launcher" />
+                            tools:src="@mipmap/ic_launcher" />
 
                         <TextView
                             android:id="@+id/tvEvo1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="Froakie"
+                            tools:text="Froakie"
                             android:textColor="#1A1D24"
                             android:textSize="12sp"
                             android:textStyle="bold" />
@@ -670,14 +670,14 @@
                             android:layout_width="68dp"
                             android:layout_height="68dp"
                             android:contentDescription="Etapa 2"
-                            android:src="@mipmap/ic_launcher" />
+                            tools:src="@mipmap/ic_launcher" />
 
                         <TextView
                             android:id="@+id/tvEvo2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="Frogadier"
+                            tools:text="Frogadier"
                             android:textColor="#1A1D24"
                             android:textSize="12sp"
                             android:textStyle="bold" />
@@ -705,14 +705,14 @@
                             android:layout_width="68dp"
                             android:layout_height="68dp"
                             android:contentDescription="Etapa 3"
-                            android:src="@mipmap/ic_launcher" />
+                            tools:src="@mipmap/ic_launcher" />
 
                         <TextView
                             android:id="@+id/tvEvo3"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
-                            android:text="Greninja"
+                            tools:text="Greninja"
                             android:textColor="#1A1D24"
                             android:textSize="12sp"
                             android:textStyle="bold" />
@@ -767,7 +767,7 @@
                             android:layout_weight="1"
                             android:background="@drawable/bg_pokeinfo_pill"
                             android:gravity="center"
-                            android:text="ELECTRIC"
+                            tools:text="ELECTRIC"
                             android:textColor="#FFFFFF"
                             android:textSize="11sp"
                             android:textStyle="bold" />
@@ -780,7 +780,7 @@
                             android:layout_weight="1"
                             android:background="@drawable/bg_pokeinfo_pill"
                             android:gravity="center"
-                            android:text="GRASS"
+                            tools:text="GRASS"
                             android:textColor="#FFFFFF"
                             android:textSize="11sp"
                             android:textStyle="bold" />
@@ -793,7 +793,7 @@
                             android:layout_weight="1"
                             android:background="@drawable/bg_pokeinfo_pill"
                             android:gravity="center"
-                            android:text="FIGHTING"
+                            tools:text="FIGHTING"
                             android:textColor="#FFFFFF"
                             android:textSize="11sp"
                             android:textStyle="bold" />
@@ -828,7 +828,7 @@
                             android:layout_weight="1"
                             android:background="@drawable/bg_pokeinfo_pill"
                             android:gravity="center"
-                            android:text="FIRE"
+                            tools:text="FIRE"
                             android:textColor="#FFFFFF"
                             android:textSize="11sp"
                             android:textStyle="bold" />
@@ -841,7 +841,7 @@
                             android:layout_weight="1"
                             android:background="@drawable/bg_pokeinfo_pill"
                             android:gravity="center"
-                            android:text="GROUND"
+                            tools:text="GROUND"
                             android:textColor="#FFFFFF"
                             android:textSize="11sp"
                             android:textStyle="bold" />
@@ -854,7 +854,7 @@
                             android:layout_weight="1"
                             android:background="@drawable/bg_pokeinfo_pill"
                             android:gravity="center"
-                            android:text="PSYCHIC"
+                            tools:text="PSYCHIC"
                             android:textColor="#FFFFFF"
                             android:textSize="11sp"
                             android:textStyle="bold" />
@@ -889,7 +889,7 @@
                             android:layout_weight="1"
                             android:background="@drawable/bg_pokeinfo_pill"
                             android:gravity="center"
-                            android:text="WATER"
+                            tools:text="WATER"
                             android:textColor="#FFFFFF"
                             android:textSize="11sp"
                             android:textStyle="bold" />
@@ -902,7 +902,7 @@
                             android:layout_weight="1"
                             android:background="@drawable/bg_pokeinfo_pill"
                             android:gravity="center"
-                            android:text="ICE"
+                            tools:text="ICE"
                             android:textColor="#FFFFFF"
                             android:textSize="11sp"
                             android:textStyle="bold" />
@@ -915,7 +915,7 @@
                             android:layout_weight="1"
                             android:background="@drawable/bg_pokeinfo_pill"
                             android:gravity="center"
-                            android:text="DARK"
+                            tools:text="DARK"
                             android:textColor="#FFFFFF"
                             android:textSize="11sp"
                             android:textStyle="bold" />
