@@ -127,7 +127,7 @@ class   MainActivity : AppCompatActivity() {
                 val res = motor.identificarPokemon(recorte)
                 Log.d(TAG, "scan → ${res.nombrePokemon} sim=${"%.3f".format(res.similitudDirecta)} certeza=${"%.3f".format(res.certeza)} | ${res.segundoLugar} | detectado=${res.detectado}")
                 if (res.detectado && res.pokemonId > 0) {
-                    UnlockedPokemonStore.unlock(this, res.pokemonId)
+                    PokemonEncounterStore.registerEncounter(this, res.pokemonId)
                 }
                 runOnUiThread {
                     if (res.detectado && res.pokemonId > 0) {

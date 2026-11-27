@@ -44,10 +44,24 @@ class pokemonlibrary : AppCompatActivity() {
         loadGen1Pokemon()
     }
 
+    override fun onResume() {
+        super.onResume()
+        refreshEncounterStates()
+    }
+
+    private fun refreshEncounterStates() {
+        for (i in 0 until pokemonContainer.childCount) {
+            val tagView = pokemonContainer.getChildAt(i)
+            val pokemonId = tagView.tag as? Int ?: continue
+            applyLockState(tagView, estaBloqueado(pokemonId))
+        }
+    }
+
     private fun loadGen1Pokemon() {
         progressBar.visibility = View.VISIBLE
         executor.execute {
             try {
+                PokemonEncounterStore.preload(this)
                 val pokemonList = PokeApiService.fetchGen1PokemonList()
                 enPantalla {
                     progressBar.visibility = View.GONE
@@ -76,6 +90,7 @@ class pokemonlibrary : AppCompatActivity() {
     }
 
     private fun bindInitialPanel(tagView: View, pokemon: PokemonSummary) {
+        tagView.tag = pokemon.id
         tagView.findViewById<TextView>(R.id.tvPokenum).text =
             String.format(Locale.US, "#%03d", pokemon.id)
         tagView.findViewById<TextView>(R.id.tvPokename).text = pokemon.name
@@ -91,7 +106,7 @@ class pokemonlibrary : AppCompatActivity() {
         configurarFavorito(tagView, pokemon.id)
 
         tagView.setOnClickListener {
-            openPokeInfo(pokemon.id, pokemon.name, null, null, estaBloqueado(pokemon.id))
+            openPokeInfo(pokemon.id, pokemon.name, null, null)
         }
     }
 
@@ -121,8 +136,7 @@ class pokemonlibrary : AppCompatActivity() {
                             detail.id,
                             detail.name,
                             detail.types.getOrNull(0),
-                            detail.types.getOrNull(1),
-                            estaBloqueado(detail.id)
+                            detail.types.getOrNull(1)
                         )
                     }
                 }
@@ -154,9 +168,9 @@ class pokemonlibrary : AppCompatActivity() {
         }
     }
 
-    // El candado depende de lo que el usuario ya escaneó (UnlockedPokemonStore)
+    // El candado depende de los encuentros cifrados en localstorage (PokemonEncounterStore)
     private fun estaBloqueado(pokemonId: Int): Boolean =
-        !UnlockedPokemonStore.isUnlocked(this, pokemonId)
+        !PokemonEncounterStore.isEncountered(this, pokemonId)
 
     private fun applyLockState(tagView: View, isLocked: Boolean) {
         val tvName = tagView.findViewById<TextView>(R.id.tvPokename)
@@ -203,10 +217,9 @@ class pokemonlibrary : AppCompatActivity() {
         id: Int,
         name: String,
         tipo1: String?,
-        tipo2: String?,
-        isLocked: Boolean
+        tipo2: String?
     ) {
-        if (isLocked) {
+        if (estaBloqueado(id)) {
             mostrarMensaje("Este Pokémon está bloqueado")
             return
         }
