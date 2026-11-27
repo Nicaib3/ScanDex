@@ -10,8 +10,7 @@ import java.util.Locale
 
 data class PokemonSummary(
     val id: Int,
-    val name: String,
-    val isLocked: Boolean = true
+    val name: String
 )
 
 data class PokemonDetail(
@@ -20,8 +19,7 @@ data class PokemonDetail(
     val types: List<String>,
     val heightMeters: Double,
     val weightKg: Double,
-    val spriteUrl: String?,
-    val isLocked: Boolean = true
+    val spriteUrl: String?
 )
 
 data class PokemonAbilityInfo(
@@ -94,8 +92,7 @@ object PokeApiService {
             list.add(
                 PokemonSummary(
                     id = id,
-                    name = formatName(rawName),
-                    isLocked = id % 2 == 0
+                    name = formatName(rawName)
                 )
             )
         }
@@ -129,8 +126,7 @@ object PokeApiService {
             types = types,
             heightMeters = heightMeters,
             weightKg = weightKg,
-            spriteUrl = spriteUrl,
-            isLocked = id % 2 == 0
+            spriteUrl = spriteUrl
         )
     }
 

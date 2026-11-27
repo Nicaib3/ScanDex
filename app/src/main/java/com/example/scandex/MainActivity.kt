@@ -24,12 +24,18 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import java.text.SimpleDateFormat
 import java.util.Locale
+import android.graphics.Bitmap
+import android.widget.TextView
 
 class   MainActivity : AppCompatActivity() {
 
     private lateinit var previewView: PreviewView
     private lateinit var btnCapture: Button
     private var imageCapture: ImageCapture? = null
+
+    private var pokemonEmbedder: PokemonEmbedder? = null
+
+    private lateinit var tvTitle: TextView
 
     // Permisos necesarios: cámara siempre; almacenamiento solo en Android 9 o menor
     private val requiredPermissions: Array<String>
@@ -60,7 +66,17 @@ class   MainActivity : AppCompatActivity() {
 
         previewView = findViewById(R.id.cameraPreview)
         btnCapture = findViewById(R.id.btnCapture)
-        btnCapture.setOnClickListener { takePhoto() }
+        tvTitle = findViewById(R.id.tvTitle)
+        previewView.implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+        // Cargar el motor en segundo plano para no congelar la pantalla
+        Thread {
+            val motor = PokemonEmbedder(this)
+            val total = motor.cargarSecuenciasDesdeJson("secuencias_pokedex.json")
+            pokemonEmbedder = motor
+            runOnUiThread { tvTitle.text = "ScanDex lista ($total Pokémon)" }
+        }.start()
+        btnCapture.setOnClickListener { scanAndCapturePokemon() }
+
         findViewById<Button>(R.id.btnLibrary).setOnClickListener {
             startActivity(Intent(this, pokemonlibrary::class.java))
         }
@@ -98,7 +114,37 @@ class   MainActivity : AppCompatActivity() {
             }
         }, ContextCompat.getMainExecutor(this))
     }
-
+    /** Identifica el Pokémon del visor, lo desbloquea, abre su ficha y guarda la foto. */
+    private fun scanAndCapturePokemon() {
+        val motor = pokemonEmbedder
+        val bitmap = previewView.bitmap
+        if (motor != null && bitmap != null) {
+            val lado = (minOf(bitmap.width, bitmap.height) * 0.65f).toInt()
+            val recorte = Bitmap.createBitmap(
+                bitmap, (bitmap.width - lado) / 2, (bitmap.height - lado) / 2, lado, lado
+            )
+            Thread {
+                val res = motor.identificarPokemon(recorte)
+                Log.d(TAG, "scan → ${res.nombrePokemon} sim=${"%.3f".format(res.similitudDirecta)} certeza=${"%.3f".format(res.certeza)} | ${res.segundoLugar} | detectado=${res.detectado}")
+                if (res.detectado && res.pokemonId > 0) {
+                    UnlockedPokemonStore.unlock(this, res.pokemonId)
+                }
+                runOnUiThread {
+                    if (res.detectado && res.pokemonId > 0) {
+                        val pct = (res.similitudDirecta * 100).toInt()
+                        tvTitle.text = "¡${res.nombrePokemon} ($pct%)!"
+                        startActivity(
+                            Intent(this, pokeinfo::class.java)
+                                .putExtra("pokemonId", res.pokemonId)
+                        )
+                    } else {
+                        tvTitle.text = res.nombrePokemon   // "No identificado": no abre nada
+                    }
+                }
+            }.start()
+        }
+        takePhoto()
+    }
     /** Toma una foto y la guarda en la galería (Pictures/ScanDex). */
     private fun takePhoto() {
         val capture = imageCapture ?: return
