@@ -142,27 +142,22 @@
             android:id="@+id/contenedorEquiposGuardados"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:id="@+id/contenedorEquiposGuardados"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/tvSinEquipos"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
-                    android:gravity="center"
-                    android:text="Aún no tienes equipos guardados.\nToca «Crear nuevo equipo» para comenzar."
-                    android:textColor="#3B4A54"
-                    android:textSize="14sp" />
-
-            </LinearLayout>
-
-        </LinearLayout>
+            android:orientation="vertical" />
     </ScrollView>
+
+    <TextView
+        android:id="@+id/tvSinEquipos"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="24dp"
+        android:gravity="center"
+        android:text="Aún no tienes equipos guardados.\nToca «Crear nuevo equipo» para comenzar."
+        android:textColor="#3B4A54"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnCrearEquipo" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
