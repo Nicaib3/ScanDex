@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -25,7 +26,6 @@ import androidx.core.view.WindowInsetsCompat
 import java.text.SimpleDateFormat
 import java.util.Locale
 import android.graphics.Bitmap
-import android.widget.TextView
 
 class   MainActivity : AppCompatActivity() {
 
@@ -34,8 +34,6 @@ class   MainActivity : AppCompatActivity() {
     private var imageCapture: ImageCapture? = null
 
     private var pokemonEmbedder: PokemonEmbedder? = null
-
-    private lateinit var tvTitle: TextView
 
     // Permisos necesarios: cámara siempre; almacenamiento solo en Android 9 o menor
     private val requiredPermissions: Array<String>
@@ -66,22 +64,22 @@ class   MainActivity : AppCompatActivity() {
 
         previewView = findViewById(R.id.cameraPreview)
         btnCapture = findViewById(R.id.btnCapture)
-        tvTitle = findViewById(R.id.tvTitle)
         previewView.implementationMode = PreviewView.ImplementationMode.COMPATIBLE
         // Cargar el motor en segundo plano para no congelar la pantalla
         Thread {
             val motor = PokemonEmbedder(this)
             val total = motor.cargarSecuenciasDesdeJson("secuencias_pokedex.json")
             pokemonEmbedder = motor
-            runOnUiThread { tvTitle.text = "ScanDex lista ($total Pokémon)" }
+            Log.d(TAG, "ScanDex lista ($total Pokémon)")
         }.start()
         btnCapture.setOnClickListener { scanAndCapturePokemon() }
 
-        findViewById<Button>(R.id.btnLibrary).setOnClickListener {
-            startActivity(Intent(this, pokemonlibrary::class.java))
-        }
-        findViewById<Button>(R.id.button).setOnClickListener {
-            startActivity(Intent(this, teambuilder::class.java))
+        mapOf(
+            R.id.btnLibrary to pokemonlibrary::class.java,
+            R.id.button to teambuilder::class.java,
+            R.id.button4 to others::class.java
+        ).forEach { (id, activity) ->
+            findViewById<View>(id).setOnClickListener { startActivity(Intent(this, activity)) }
         }
 
         if (allPermissionsGranted()) startCamera() else permissionLauncher.launch(requiredPermissions)
@@ -134,13 +132,13 @@ class   MainActivity : AppCompatActivity() {
                     btnCapture.isEnabled = true
                     if (res.detectado && res.pokemonId > 0) {
                         val pct = (res.similitudDirecta * 100).toInt()
-                        tvTitle.text = "¡${res.nombrePokemon} ($pct%)!"
+                        Toast.makeText(this, "¡${res.nombrePokemon} ($pct%)!", Toast.LENGTH_SHORT).show()
                         startActivity(
                             Intent(this, pokeinfo::class.java)
                                 .putExtra("pokemonId", res.pokemonId)
                         )
                     } else {
-                        tvTitle.text = res.nombrePokemon   // "No identificado": no abre nada
+                        Toast.makeText(this, res.nombrePokemon, Toast.LENGTH_SHORT).show()
                     }
                 }
             }.start()
