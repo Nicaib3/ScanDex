@@ -23,7 +23,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/pokeinfo_top" />
+            app:srcCompat="@drawable/bg_pokeinfo_top" />
 
         <ImageView
             android:id="@+id/ivPokeimage2"
@@ -623,6 +623,7 @@
                     android:orientation="horizontal">
 
                     <LinearLayout
+                        android:id="@+id/evoStage1"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -648,6 +649,7 @@
                     </LinearLayout>
 
                     <TextView
+                        android:id="@+id/tvEvoArrow1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="→"
@@ -656,6 +658,7 @@
                         android:textStyle="bold" />
 
                     <LinearLayout
+                        android:id="@+id/evoStage2"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -681,6 +684,7 @@
                     </LinearLayout>
 
                     <TextView
+                        android:id="@+id/tvEvoArrow2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="→"
@@ -689,6 +693,7 @@
                         android:textStyle="bold" />
 
                     <LinearLayout
+                        android:id="@+id/evoStage3"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -744,48 +749,55 @@
                     android:textStyle="bold" />
 
                 <LinearLayout
+                    android:id="@+id/layoutWeaknesses"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/tvWeak1"
-                        android:layout_width="0dp"
-                        android:layout_height="28dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pokeinfo_pill"
-                        android:gravity="center"
-                        android:text="ELECTRIC"
-                        android:textColor="#FFFFFF"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/tvWeak2"
-                        android:layout_width="0dp"
-                        android:layout_height="28dp"
-                        android:layout_marginStart="6dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pokeinfo_pill"
-                        android:gravity="center"
-                        android:text="GRASS"
-                        android:textColor="#FFFFFF"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/tvWeak1"
+                            android:layout_width="0dp"
+                            android:layout_height="28dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_pokeinfo_pill"
+                            android:gravity="center"
+                            android:text="ELECTRIC"
+                            android:textColor="#FFFFFF"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
 
-                    <TextView
-                        android:id="@+id/tvWeak3"
-                        android:layout_width="0dp"
-                        android:layout_height="28dp"
-                        android:layout_marginStart="6dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pokeinfo_pill"
-                        android:gravity="center"
-                        android:text="FIGHTING"
-                        android:textColor="#FFFFFF"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/tvWeak2"
+                            android:layout_width="0dp"
+                            android:layout_height="28dp"
+                            android:layout_marginStart="6dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_pokeinfo_pill"
+                            android:gravity="center"
+                            android:text="GRASS"
+                            android:textColor="#FFFFFF"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvWeak3"
+                            android:layout_width="0dp"
+                            android:layout_height="28dp"
+                            android:layout_marginStart="6dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_pokeinfo_pill"
+                            android:gravity="center"
+                            android:text="FIGHTING"
+                            android:textColor="#FFFFFF"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <TextView
@@ -798,48 +810,55 @@
                     android:textStyle="bold" />
 
                 <LinearLayout
+                    android:id="@+id/layoutStrengths"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/tvStrong1"
-                        android:layout_width="0dp"
-                        android:layout_height="28dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pokeinfo_pill"
-                        android:gravity="center"
-                        android:text="FIRE"
-                        android:textColor="#FFFFFF"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/tvStrong2"
-                        android:layout_width="0dp"
-                        android:layout_height="28dp"
-                        android:layout_marginStart="6dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pokeinfo_pill"
-                        android:gravity="center"
-                        android:text="GROUND"
-                        android:textColor="#FFFFFF"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/tvStrong1"
+                            android:layout_width="0dp"
+                            android:layout_height="28dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_pokeinfo_pill"
+                            android:gravity="center"
+                            android:text="FIRE"
+                            android:textColor="#FFFFFF"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
 
-                    <TextView
-                        android:id="@+id/tvStrong3"
-                        android:layout_width="0dp"
-                        android:layout_height="28dp"
-                        android:layout_marginStart="6dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pokeinfo_pill"
-                        android:gravity="center"
-                        android:text="PSYCHIC"
-                        android:textColor="#FFFFFF"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/tvStrong2"
+                            android:layout_width="0dp"
+                            android:layout_height="28dp"
+                            android:layout_marginStart="6dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_pokeinfo_pill"
+                            android:gravity="center"
+                            android:text="GROUND"
+                            android:textColor="#FFFFFF"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvStrong3"
+                            android:layout_width="0dp"
+                            android:layout_height="28dp"
+                            android:layout_marginStart="6dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_pokeinfo_pill"
+                            android:gravity="center"
+                            android:text="PSYCHIC"
+                            android:textColor="#FFFFFF"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <TextView
@@ -852,48 +871,55 @@
                     android:textStyle="bold" />
 
                 <LinearLayout
+                    android:id="@+id/layoutResistances"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:orientation="horizontal">
+                    android:orientation="vertical">
 
-                    <TextView
-                        android:id="@+id/tvRes1"
-                        android:layout_width="0dp"
-                        android:layout_height="28dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pokeinfo_pill"
-                        android:gravity="center"
-                        android:text="WATER"
-                        android:textColor="#FFFFFF"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/tvRes2"
-                        android:layout_width="0dp"
-                        android:layout_height="28dp"
-                        android:layout_marginStart="6dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pokeinfo_pill"
-                        android:gravity="center"
-                        android:text="ICE"
-                        android:textColor="#FFFFFF"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/tvRes1"
+                            android:layout_width="0dp"
+                            android:layout_height="28dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_pokeinfo_pill"
+                            android:gravity="center"
+                            android:text="WATER"
+                            android:textColor="#FFFFFF"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
 
-                    <TextView
-                        android:id="@+id/tvRes3"
-                        android:layout_width="0dp"
-                        android:layout_height="28dp"
-                        android:layout_marginStart="6dp"
-                        android:layout_weight="1"
-                        android:background="@drawable/bg_pokeinfo_pill"
-                        android:gravity="center"
-                        android:text="DARK"
-                        android:textColor="#FFFFFF"
-                        android:textSize="11sp"
-                        android:textStyle="bold" />
+                        <TextView
+                            android:id="@+id/tvRes2"
+                            android:layout_width="0dp"
+                            android:layout_height="28dp"
+                            android:layout_marginStart="6dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_pokeinfo_pill"
+                            android:gravity="center"
+                            android:text="ICE"
+                            android:textColor="#FFFFFF"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvRes3"
+                            android:layout_width="0dp"
+                            android:layout_height="28dp"
+                            android:layout_marginStart="6dp"
+                            android:layout_weight="1"
+                            android:background="@drawable/bg_pokeinfo_pill"
+                            android:gravity="center"
+                            android:text="DARK"
+                            android:textColor="#FFFFFF"
+                            android:textSize="11sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

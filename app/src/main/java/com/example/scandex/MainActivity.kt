@@ -64,6 +64,9 @@ class   MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnLibrary).setOnClickListener {
             startActivity(Intent(this, pokemonlibrary::class.java))
         }
+        findViewById<Button>(R.id.button).setOnClickListener {
+            Toast.makeText(this, "Creador de equipos aún no disponible", Toast.LENGTH_SHORT).show()
+        }
 
         if (allPermissionsGranted()) startCamera() else permissionLauncher.launch(requiredPermissions)
     }

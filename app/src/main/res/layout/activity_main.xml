@@ -24,8 +24,8 @@
 
     <FrameLayout
         android:id="@+id/cameraFrame"
-        android:layout_width="434dp"
-        android:layout_height="649dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         android:background="#E0E0E0"
@@ -147,10 +147,17 @@
 
     <Button
         android:id="@+id/button"
-        android:layout_width="152dp"
-        android:layout_height="51dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:minHeight="48dp"
         android:text="Creador de equipos"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="802dp" />
+        android:textSize="12sp"
+        app:cornerRadius="24dp"
+        app:layout_constraintBottom_toBottomOf="@+id/btnCapture"
+        app:layout_constraintEnd_toStartOf="@+id/btnCapture"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btnCapture" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
