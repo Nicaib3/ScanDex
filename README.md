@@ -110,3 +110,58 @@ This section describes the layout of the screen
     - If `isLocked` is `true`, the image turns black and the name and description are hidden.
     - If `isLocked` is `false`, the image, name, and description are shown normally.
   - Pressing the star button (`btnfav`) marks or unmarks the Pokémon as a favorite.
+
+## Third Screen
+
+### Purpose of the screen
+
+The third screen is used for any Pokémon to show its complete Pokédex information, including description, abilities, base stats, evolution line, type matchups, and moves.
+
+### Function
+
+- **Goal:** Show the full details of the selected Pokémon using **PokéAPI v2**, change the background colors based on its types, and let the user switch between general info and moves.
+
+### Structure File
+
+- `/app/src/main/java/com/example/scandex/pokeinfo.kt`
+- `/app/src/main/java/com/example/scandex/PokeApiService.kt`
+- `/app/src/main/res/layout/activity_pokeinfo.xml`
+- `/app/src/main/res/layout/item_move.xml`
+- `/app/src/main/res/drawable/`
+  - `bg_pokeinfo_top.xml`
+  - `bg_pokeinfo_gradient.xml`
+  - `bg_pokeinfo_card.xml`
+  - `bg_pokeinfo_pill.xml`
+  - `bg_tab_container.xml`
+  - `bg_circle_info.xml`
+- `/app/src/main/res/values/colors.xml`
+- `/app/src/main/AndroidManifest.xml`
+
+### Design & interface XML
+
+This section describes the layout of the screen
+
+- **Main layout:** `ScrollView` (`typecolor`) with a `ConstraintLayout` inside, so the user can scroll vertically while keeping the design responsive.
+- **Structure:**
+  - **Type background (`typecolor`):** A top-to-bottom gradient using the Pokémon's type colors from `colors.xml` (with `bg_pokeinfo_gradient.xml` as default).
+  - **Top half circle (`ImageView` - `circle_top`):** A soft white semi-transparent half circle (`bg_pokeinfo_top.xml`) placed behind the Pokémon image (`ivPokeimage2`).
+  - **Main info:** Shows the Pokémon name (`tvpokename2`), number (`pokenum2`), category (`pokedesc`), and up to two type boxes (`tvpoketype1`, `tvpoketype2`) using `bg_pokeinfo_pill.xml`.
+  - **Tabs (`layoutTabsMenu`):** A container (`bg_tab_container.xml`) with two buttons (`btnTabInfo` for **Información** and `btnTabMovimientos` for **Movimientos**) to switch between sections.
+  - **Info cards (`layoutSeccionInfo`):** White semi-transparent cards (`bg_pokeinfo_card.xml`, `#CCFFFFFF`) holding:
+    - Pokédex description (`tvpokeinfo`), weight (`tvpokeweight`), and height (`pokeheight`).
+    - Abilities (`rowHab1`–`rowHab3`) with `i` buttons (`btnInfoHab1`–`btnInfoHab3`) using `bg_circle_info.xml`.
+    - Base stats (`tvStatHp`, `tvStatAtk`, `tvStatDef`, `tvStatSpAtk`, `tvStatSpDef`, `tvStatSpd`, and `tvStatTotal`).
+    - Evolution line (`evoStage1`–`evoStage3`) showing up to 3 evolutions with their images and names.
+    - Type interactions (`layoutWeaknesses`, `layoutStrengths`, `layoutResistances`) with rows of colored type boxes.
+  - **Moves list (`layoutSeccionMovimientos`):** A card with a vertical `LinearLayout` (`contenedorListaMovimientos`) that loads each level-up move using `item_move.xml` (level, name, and type).
+
+### Logic kt
+
+- **Main class:** `pokeinfo.kt`
+- **Behavior:**
+  - Receives `pokemonId`, `nombre`, `tipo1`, and `tipo2` through an `Intent` from `pokemonlibrary.kt`, and sets the background gradient (`aplicarFondoPorTipos` and `obtenerColorDeTipo`) right away.
+  - If the Pokémon has two types, the background mixes both colors from top to bottom; if it only has one type, it uses the same color for both.
+  - `PokeApiService.kt` connects to **PokéAPI v2** to get the Pokémon details, species text and category, abilities, evolutions, type matchups, and level-up moves.
+  - `pokeinfo.kt` loads the Pokémon image, evolution images, stats, type matchups, and moves in the background and updates the screen as the data arrives.
+  - Pressing **Información** (`btnTabInfo`) or **Movimientos** (`btnTabMovimientos`) hides one section and shows the other.
+  - Pressing an ability's `i` button or tapping a move opens a popup (`AlertDialog`) with its description or move details (`tipo`, `categoría`, `potencia`, `precisión`, `PP`, and `efecto`).

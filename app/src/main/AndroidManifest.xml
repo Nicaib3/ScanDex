@@ -36,6 +36,10 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
+            android:name=".pokeinfo"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name=".teambuilder"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
