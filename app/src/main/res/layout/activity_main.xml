@@ -8,6 +8,17 @@
     tools:context=".MainActivity">
 
     <!-- Capas del diseño: PNG de pantalla completa (1080x1920) apiladas -->
+    <ImageView
+        android:id="@+id/imageView9"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:contentDescription="@null"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/centro"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Pantalla de la cámara: marco gris con la vista previa de CameraX -->
 
@@ -84,6 +95,18 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
+        android:id="@+id/imageView7"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:contentDescription="@null"
+        android:scaleType="fitXY"
+        app:srcCompat="@drawable/abajo_izquierda"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
         android:id="@+id/imageView8"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -96,13 +119,6 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Áreas clickeables transparentes sobre los rectángulos de colores de fondo -->
-    <ImageView
-        android:id="@+id/imageView7"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@drawable/abajo_izquierda"
-        tools:layout_editor_absoluteY="54dp" />
-
     <View
         android:id="@+id/button"
         android:layout_width="0dp"
