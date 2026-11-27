@@ -2,6 +2,7 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="ic_launcher_background">#FF0400</color>
 
     <!-- Paleta de Tipos de Pokémon para ScanDex -->
     <color name="type_normal">#A8A77A</color>

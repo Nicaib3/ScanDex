@@ -43,7 +43,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#000000"
-            app:scaleType="fillCenter" />
+            app:scaleType="fillCenter" >
+
+        </androidx.camera.view.PreviewView>
     </FrameLayout>
 
     <ImageView
@@ -57,6 +59,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
     <ImageView
         android:id="@+id/imageView2"
         android:layout_width="0dp"
@@ -90,6 +93,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
     <ImageView
         android:id="@+id/imageView7"
         android:layout_width="0dp"
@@ -101,6 +105,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
     <ImageView
         android:id="@+id/imageView8"
         android:layout_width="0dp"
