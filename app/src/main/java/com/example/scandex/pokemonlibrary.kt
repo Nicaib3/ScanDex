@@ -87,11 +87,11 @@ class pokemonlibrary : AppCompatActivity() {
         tvType2.text = ""
         tvType2.visibility = View.GONE
 
-        applyLockState(tagView, pokemon.isLocked)
+        applyLockState(tagView, estaBloqueado(pokemon.id))
         configurarFavorito(tagView, pokemon.id)
 
         tagView.setOnClickListener {
-            openPokeInfo(pokemon.id, pokemon.name, null, null, pokemon.isLocked)
+            openPokeInfo(pokemon.id, pokemon.name, null, null, estaBloqueado(pokemon.id))
         }
     }
 
@@ -114,7 +114,7 @@ class pokemonlibrary : AppCompatActivity() {
                     }
 
                     mostrarTipos(tagView, detail.types)
-                    applyLockState(tagView, detail.isLocked)
+                    applyLockState(tagView, estaBloqueado(detail.id))
 
                     tagView.setOnClickListener {
                         openPokeInfo(
@@ -122,7 +122,7 @@ class pokemonlibrary : AppCompatActivity() {
                             detail.name,
                             detail.types.getOrNull(0),
                             detail.types.getOrNull(1),
-                            detail.isLocked
+                            estaBloqueado(detail.id)
                         )
                     }
                 }
@@ -153,6 +153,10 @@ class pokemonlibrary : AppCompatActivity() {
             tvType2.visibility = View.GONE
         }
     }
+
+    // El candado depende de lo que el usuario ya escaneó (UnlockedPokemonStore)
+    private fun estaBloqueado(pokemonId: Int): Boolean =
+        !UnlockedPokemonStore.isUnlocked(this, pokemonId)
 
     private fun applyLockState(tagView: View, isLocked: Boolean) {
         val tvName = tagView.findViewById<TextView>(R.id.tvPokename)
