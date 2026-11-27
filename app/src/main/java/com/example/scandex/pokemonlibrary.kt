@@ -1,5 +1,6 @@
 package com.example.scandex
 
+import android.content.Intent
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.os.Bundle
@@ -48,21 +49,15 @@ class pokemonlibrary : AppCompatActivity() {
         executor.execute {
             try {
                 val pokemonList = PokeApiService.fetchGen1PokemonList()
-                runOnUiThread {
-                    if (isFinishing || isDestroyed) return@runOnUiThread
+                enPantalla {
                     progressBar.visibility = View.GONE
                     populatePokemonPanels(pokemonList)
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error al cargar la lista de Pokémon", e)
-                runOnUiThread {
-                    if (isFinishing || isDestroyed) return@runOnUiThread
+                enPantalla {
                     progressBar.visibility = View.GONE
-                    Toast.makeText(
-                        this,
-                        "No se pudo conectar con la PokéAPI",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    mostrarMensaje("No se pudo conectar con la PokéAPI")
                 }
             }
         }
@@ -81,33 +76,22 @@ class pokemonlibrary : AppCompatActivity() {
     }
 
     private fun bindInitialPanel(tagView: View, pokemon: PokemonSummary) {
-        val tvNum = tagView.findViewById<TextView>(R.id.tvPokenum)
-        val tvName = tagView.findViewById<TextView>(R.id.tvPokename)
-        val tvDesc = tagView.findViewById<TextView>(R.id.tvDescripcionPokemon)
+        tagView.findViewById<TextView>(R.id.tvPokenum).text =
+            String.format(Locale.US, "#%03d", pokemon.id)
+        tagView.findViewById<TextView>(R.id.tvPokename).text = pokemon.name
+        tagView.findViewById<TextView>(R.id.tvDescripcionPokemon).text = "Generación I"
+
         val tvType1 = tagView.findViewById<TextView>(R.id.tvtype1)
         val tvType2 = tagView.findViewById<TextView>(R.id.tvtype2)
-        val ivImage = tagView.findViewById<ImageView>(R.id.ivPokeimage)
-        val btnFav = tagView.findViewById<ImageButton>(R.id.btnfav)
-
-        tvNum.text = String.format(Locale.US, "#%03d", pokemon.id)
-        tvName.text = pokemon.name
-        tvDesc.text = "Generación I"
         tvType1.text = "..."
+        tvType2.text = ""
         tvType2.visibility = View.GONE
-        applyLockState(!UnlockedPokemonStore.isUnlocked(this, pokemon.id), tvName, tvDesc, ivImage)
 
-        btnFav.setOnClickListener {
-            val isFav = if (favoriteIds.contains(pokemon.id)) {
-                favoriteIds.remove(pokemon.id)
-                false
-            } else {
-                favoriteIds.add(pokemon.id)
-                true
-            }
-            btnFav.setImageResource(
-                if (isFav) android.R.drawable.btn_star_big_on
-                else android.R.drawable.btn_star_big_off
-            )
+        applyLockState(tagView, estaBloqueado(pokemon.id))
+        configurarFavorito(tagView, pokemon.id)
+
+        tagView.setOnClickListener {
+            openPokeInfo(pokemon.id, pokemon.name, null, null, estaBloqueado(pokemon.id))
         }
     }
 
@@ -117,40 +101,30 @@ class pokemonlibrary : AppCompatActivity() {
                 val detail = PokeApiService.fetchPokemonDetail(pokemonId)
                 val bitmap = detail.spriteUrl?.let { PokeApiService.downloadBitmap(it) }
 
-                runOnUiThread {
-                    if (isFinishing || isDestroyed) return@runOnUiThread
-                    val tvName = tagView.findViewById<TextView>(R.id.tvPokename)
-                    val tvDesc = tagView.findViewById<TextView>(R.id.tvDescripcionPokemon)
-                    val tvType1 = tagView.findViewById<TextView>(R.id.tvtype1)
-                    val tvType2 = tagView.findViewById<TextView>(R.id.tvtype2)
-                    val ivImage = tagView.findViewById<ImageView>(R.id.ivPokeimage)
-
-                    tvName.text = detail.name
-                    tvDesc.text = String.format(
+                enPantalla {
+                    tagView.findViewById<TextView>(R.id.tvPokename).text = detail.name
+                    tagView.findViewById<TextView>(R.id.tvDescripcionPokemon).text = String.format(
                         Locale.US,
                         "Altura: %.1f m • Peso: %.1f kg",
                         detail.heightMeters,
                         detail.weightKg
                     )
-
-                    if (detail.types.isNotEmpty()) {
-                        tvType1.visibility = View.VISIBLE
-                        tvType1.text = detail.types[0]
-                    } else {
-                        tvType1.visibility = View.GONE
-                    }
-
-                    if (detail.types.size > 1) {
-                        tvType2.visibility = View.VISIBLE
-                        tvType2.text = detail.types[1]
-                    } else {
-                        tvType2.visibility = View.GONE
-                    }
-
                     if (bitmap != null) {
-                        ivImage.setImageBitmap(bitmap)
+                        tagView.findViewById<ImageView>(R.id.ivPokeimage).setImageBitmap(bitmap)
                     }
-                    applyLockState(!UnlockedPokemonStore.isUnlocked(this@pokemonlibrary, detail.id), tvName, tvDesc, ivImage)
+
+                    mostrarTipos(tagView, detail.types)
+                    applyLockState(tagView, estaBloqueado(detail.id))
+
+                    tagView.setOnClickListener {
+                        openPokeInfo(
+                            detail.id,
+                            detail.name,
+                            detail.types.getOrNull(0),
+                            detail.types.getOrNull(1),
+                            estaBloqueado(detail.id)
+                        )
+                    }
                 }
             } catch (e: Exception) {
                 Log.w(TAG, "No se pudo cargar detalle de #$pokemonId", e)
@@ -158,21 +132,102 @@ class pokemonlibrary : AppCompatActivity() {
         }
     }
 
-    private fun applyLockState(
-        isLocked: Boolean,
-        tvName: TextView,
-        tvDesc: TextView,
-        ivImage: ImageView
-    ) {
+    private fun mostrarTipos(tagView: View, types: List<String>) {
+        val tvType1 = tagView.findViewById<TextView>(R.id.tvtype1)
+        val tvType2 = tagView.findViewById<TextView>(R.id.tvtype2)
+
+        val tipo1 = types.getOrNull(0)
+        if (tipo1 != null) {
+            tvType1.text = tipo1
+            tvType1.visibility = View.VISIBLE
+        } else {
+            tvType1.visibility = View.GONE
+        }
+
+        val tipo2 = types.getOrNull(1)
+        if (tipo2 != null) {
+            tvType2.text = tipo2
+            tvType2.visibility = View.VISIBLE
+        } else {
+            tvType2.text = ""
+            tvType2.visibility = View.GONE
+        }
+    }
+
+    // El candado depende de lo que el usuario ya escaneó (UnlockedPokemonStore)
+    private fun estaBloqueado(pokemonId: Int): Boolean =
+        !UnlockedPokemonStore.isUnlocked(this, pokemonId)
+
+    private fun applyLockState(tagView: View, isLocked: Boolean) {
+        val tvName = tagView.findViewById<TextView>(R.id.tvPokename)
+        val tvDesc = tagView.findViewById<TextView>(R.id.tvDescripcionPokemon)
+        val ivImage = tagView.findViewById<ImageView>(R.id.ivPokeimage)
+        val tvType1 = tagView.findViewById<TextView>(R.id.tvtype1)
+        val tvType2 = tagView.findViewById<TextView>(R.id.tvtype2)
+
         if (isLocked) {
             ivImage.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN)
             tvName.visibility = View.INVISIBLE
             tvDesc.visibility = View.INVISIBLE
+            tvType1.visibility = View.INVISIBLE
+            tvType2.visibility = View.INVISIBLE
         } else {
             ivImage.clearColorFilter()
             tvName.visibility = View.VISIBLE
             tvDesc.visibility = View.VISIBLE
+            tvType1.visibility = View.VISIBLE
+            tvType2.visibility = if (tvType2.text.isNotEmpty()) View.VISIBLE else View.GONE
         }
+    }
+
+    private fun configurarFavorito(tagView: View, pokemonId: Int) {
+        val btnFav = tagView.findViewById<ImageButton>(R.id.btnfav)
+        btnFav.setOnClickListener {
+            val esFavorito = if (favoriteIds.contains(pokemonId)) {
+                favoriteIds.remove(pokemonId)
+                false
+            } else {
+                favoriteIds.add(pokemonId)
+                true
+            }
+            val icono = if (esFavorito) {
+                android.R.drawable.btn_star_big_on
+            } else {
+                android.R.drawable.btn_star_big_off
+            }
+            btnFav.setImageResource(icono)
+        }
+    }
+
+    private fun openPokeInfo(
+        id: Int,
+        name: String,
+        tipo1: String?,
+        tipo2: String?,
+        isLocked: Boolean
+    ) {
+        if (isLocked) {
+            mostrarMensaje("Este Pokémon está bloqueado")
+            return
+        }
+        val intent = Intent(this, pokeinfo::class.java)
+        intent.putExtra("pokemonId", id)
+        intent.putExtra("nombre", name)
+        if (!tipo1.isNullOrBlank()) intent.putExtra("tipo1", tipo1)
+        if (!tipo2.isNullOrBlank()) intent.putExtra("tipo2", tipo2)
+        startActivity(intent)
+    }
+
+    private fun enPantalla(accion: () -> Unit) {
+        runOnUiThread {
+            if (!isFinishing && !isDestroyed) {
+                accion()
+            }
+        }
+    }
+
+    private fun mostrarMensaje(texto: String) {
+        Toast.makeText(this, texto, Toast.LENGTH_LONG).show()
     }
 
     override fun onDestroy() {

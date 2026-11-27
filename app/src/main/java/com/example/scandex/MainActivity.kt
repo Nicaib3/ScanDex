@@ -80,6 +80,9 @@ class   MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnLibrary).setOnClickListener {
             startActivity(Intent(this, pokemonlibrary::class.java))
         }
+        findViewById<Button>(R.id.button).setOnClickListener {
+            Toast.makeText(this, "Creador de equipos aún no disponible", Toast.LENGTH_SHORT).show()
+        }
 
         if (allPermissionsGranted()) startCamera() else permissionLauncher.launch(requiredPermissions)
     }
@@ -132,7 +135,7 @@ class   MainActivity : AppCompatActivity() {
                         tvTitle.text = "¡${res.nombrePokemon} ($pct%)!"
                         startActivity(
                             Intent(this, pokeinfo::class.java)
-                                .putExtra("pokemon_id", res.pokemonId)
+                                .putExtra("pokemonId", res.pokemonId)
                         )
                     } else {
                         tvTitle.text = res.nombrePokemon   // "No identificado": no abre nada
