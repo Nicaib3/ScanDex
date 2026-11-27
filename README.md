@@ -60,6 +60,8 @@ scanning the Pokemon that the user observes
     and saves it to the gallery in `Pictures/ScanDex`.
   - When **Biblioteca** (`btnLibrary`) is pressed, it launches
     `pokemonlibrary` via `Intent`.
+  - When **Creador de equipos** (`button`) is pressed, it launches
+    `teambuilder` via `Intent`.
 
 ## Second Screen
 
@@ -110,3 +112,91 @@ This section describes the layout of the screen
     - If `isLocked` is `true`, the image turns black and the name and description are hidden.
     - If `isLocked` is `false`, the image, name, and description are shown normally.
   - Pressing the star button (`btnfav`) marks or unmarks the Pokémon as a favorite.
+  - When opened with `EXTRA_TEAM_PICKER_MODE = true`, it unlocks all 151 Pokémon and replaces `btnfav` with `+`/`-` (`btnTeamToggle`) to select up to 6 team members for `pickteam`.
+
+## Third Screen
+
+### Purpose of the screen
+
+The third screen is used for any Pokémon to show its complete Pokédex information, including description, abilities, base stats, evolution line, type matchups, and moves.
+
+### Function
+
+- **Goal:** Show the full details of the selected Pokémon using **PokéAPI v2**, change the background colors based on its types, and let the user switch between general info and moves.
+
+### Structure File
+
+- `/app/src/main/java/com/example/scandex/pokeinfo.kt`
+- `/app/src/main/java/com/example/scandex/PokeApiService.kt`
+- `/app/src/main/res/layout/activity_pokeinfo.xml`
+- `/app/src/main/res/layout/item_move.xml`
+- `/app/src/main/res/drawable/`
+  - `bg_pokeinfo_top.xml`
+  - `bg_pokeinfo_gradient.xml`
+  - `bg_pokeinfo_card.xml`
+  - `bg_pokeinfo_pill.xml`
+  - `bg_tab_container.xml`
+  - `bg_circle_info.xml`
+- `/app/src/main/res/values/colors.xml`
+- `/app/src/main/AndroidManifest.xml`
+
+### Design & interface XML
+
+This section describes the layout of the screen
+
+- **Main layout:** `ScrollView` (`typecolor`) with a `ConstraintLayout` inside, so the user can scroll vertically while keeping the design responsive.
+- **Structure:**
+  - **Type background (`typecolor`):** A top-to-bottom gradient using the Pokémon's type colors from `colors.xml` (with `bg_pokeinfo_gradient.xml` as default).
+  - **Top half circle (`ImageView` - `circle_top`):** A soft white semi-transparent half circle (`bg_pokeinfo_top.xml`) placed behind the Pokémon image (`ivPokeimage2`).
+  - **Main info:** Shows the Pokémon name (`tvpokename2`), number (`pokenum2`), category (`pokedesc`), and up to two type boxes (`tvpoketype1`, `tvpoketype2`) using `bg_pokeinfo_pill.xml`.
+  - **Tabs (`layoutTabsMenu`):** A container (`bg_tab_container.xml`) with two buttons (`btnTabInfo` for **Información** and `btnTabMovimientos` for **Movimientos**) to switch between sections.
+  - **Info cards (`layoutSeccionInfo`):** White semi-transparent cards (`bg_pokeinfo_card.xml`, `#CCFFFFFF`) holding:
+    - Pokédex description (`tvpokeinfo`), weight (`tvpokeweight`), and height (`pokeheight`).
+    - Abilities (`rowHab1`–`rowHab3`) with `i` buttons (`btnInfoHab1`–`btnInfoHab3`) using `bg_circle_info.xml`.
+    - Base stats (`tvStatHp`, `tvStatAtk`, `tvStatDef`, `tvStatSpAtk`, `tvStatSpDef`, `tvStatSpd`, and `tvStatTotal`).
+    - Evolution line (`evoStage1`–`evoStage3`) showing up to 3 evolutions with their images and names.
+    - Type interactions (`layoutWeaknesses`, `layoutStrengths`, `layoutResistances`) with rows of colored type boxes.
+  - **Moves list (`layoutSeccionMovimientos`):** A card with a vertical `LinearLayout` (`contenedorListaMovimientos`) that loads each level-up move using `item_move.xml` (level, name, and type).
+
+### Logic kt
+
+- **Main class:** `pokeinfo.kt`
+- **Behavior:**
+  - Receives `pokemonId`, `nombre`, `tipo1`, and `tipo2` through an `Intent` from `pokemonlibrary.kt`, and sets the background gradient (`aplicarFondoPorTipos` and `obtenerColorDeTipo`) right away.
+  - If the Pokémon has two types, the background mixes both colors from top to bottom; if it only has one type, it uses the same color for both.
+  - `PokeApiService.kt` connects to **PokéAPI v2** to get the Pokémon details, species text and category, abilities, evolutions, type matchups, and level-up moves.
+  - `pokeinfo.kt` loads the Pokémon image, evolution images, stats, type matchups, and moves in the background and updates the screen as the data arrives.
+  - Pressing **Información** (`btnTabInfo`) or **Movimientos** (`btnTabMovimientos`) hides one section and shows the other.
+  - Pressing an ability's `i` button or tapping a move opens a popup (`AlertDialog`) with its description or move details (`tipo`, `categoría`, `potencia`, `precisión`, `PP`, and `efecto`).
+
+## Fourth Screen
+
+### Purpose of the screen
+
+The fourth section lets users create, edit, search, and delete custom Pokémon teams of up to 6 members, showing each team's combined base stats and type matchup balance.
+
+### Function
+
+- **Goal:** Allow users to build teams from any of the **151 Generation 1 Pokémon** via the library picker, calculate total base stats and type weaknesses/strengths using **PokéAPI v2**, and manage saved teams through `PokemonTeamStore`.
+
+### Structure File
+
+- `/app/src/main/java/com/example/scandex/teambuilder.kt`
+- `/app/src/main/java/com/example/scandex/pickteam.kt`
+- `/app/src/main/java/com/example/scandex/PokemonTeamStore.kt`
+- `/app/src/main/java/com/example/scandex/TeamPokeApiHelper.kt`
+- `/app/src/main/java/com/example/scandex/pokemonlibrary.kt` (team picker mode)
+
+### Design & interface XML
+
+### Logic kt
+
+- **Main classes:** `teambuilder.kt`, `pickteam.kt`, `PokemonTeamStore.kt`, and `TeamPokeApiHelper.kt`
+- **Behavior:**
+  - `teambuilder.kt` loads teams from `PokemonTeamStore`, filters them live with `searchTeams`, and displays each saved team using `item_team.xml` (team name, `X / 6` counter, and member sprites cached in memory).
+  - Pressing `btnCrearEquipo` opens `pickteam.kt` to create a new team; tapping an existing team card opens `pickteam.kt` (`EXTRA_TEAM_ID`) to edit or delete it.
+  - In `pickteam.kt`, pressing **Seleccionar** (`btnSeleccionarPokemon`) or any of the 6 slots (`slotPoke1`–`slotPoke6`) launches `pokemonlibrary.kt` in team picker mode (`EXTRA_TEAM_PICKER_MODE = true`) with all 151 Pokémon unlocked and `+` / `-` buttons (`btnTeamToggle`) to select up to 6 members.
+  - When confirmed, `pickteam.kt` fills only the selected slots sequentially (`1` to `6`), keeping remaining slots empty, and updates the header counter (`tvTeamMembersHeader`).
+  - `TeamPokeApiHelper.kt` fetches each member's base stats, sprite, and types from **PokéAPI v2** (`memberCache`) as well as type `damage_relations` (`typeCache`), then computes summed team stats (`calculateTeamStats`) and the top 3 team weaknesses and offensive coverage counts (`fetchTeamTypeBalance`).
+  - Pressing `btnGuardarEquipo` validates the team name and at least 1 Pokémon before saving in `PokemonTeamStore`; pressing `btnEliminarEquipo` deletes the team.
+  - `PokemonTeamStore.kt` persists teams in an encrypted private file (`scandex_teams.bin` in `filesDir`) via `LocalTeamStorage` and `EncryptedAppFile`, excluded from backups so data is deleted on uninstall.

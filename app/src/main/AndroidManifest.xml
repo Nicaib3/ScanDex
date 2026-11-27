@@ -36,11 +36,19 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".favorites"
+            android:name=".pokeinfo"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".Favorites"
+            android:name=".teambuilder"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".pickteam"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".others"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
     </application>

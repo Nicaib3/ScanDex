@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -24,12 +25,15 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import java.text.SimpleDateFormat
 import java.util.Locale
+import android.graphics.Bitmap
 
 class   MainActivity : AppCompatActivity() {
 
     private lateinit var previewView: PreviewView
     private lateinit var btnCapture: Button
     private var imageCapture: ImageCapture? = null
+
+    private var pokemonEmbedder: PokemonEmbedder? = null
 
     // Permisos necesarios: cámara siempre; almacenamiento solo en Android 9 o menor
     private val requiredPermissions: Array<String>
@@ -60,9 +64,22 @@ class   MainActivity : AppCompatActivity() {
 
         previewView = findViewById(R.id.cameraPreview)
         btnCapture = findViewById(R.id.btnCapture)
-        btnCapture.setOnClickListener { takePhoto() }
-        findViewById<Button>(R.id.btnLibrary).setOnClickListener {
-            startActivity(Intent(this, pokemonlibrary::class.java))
+        previewView.implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+        // Cargar el motor en segundo plano para no congelar la pantalla
+        Thread {
+            val motor = PokemonEmbedder(this)
+            val total = motor.cargarSecuenciasDesdeJson("secuencias_pokedex.json")
+            pokemonEmbedder = motor
+            Log.d(TAG, "ScanDex lista ($total Pokémon)")
+        }.start()
+        btnCapture.setOnClickListener { scanAndCapturePokemon() }
+
+        mapOf(
+            R.id.btnLibrary to pokemonlibrary::class.java,
+            R.id.button to teambuilder::class.java,
+            R.id.button4 to others::class.java
+        ).forEach { (id, activity) ->
+            findViewById<View>(id).setOnClickListener { startActivity(Intent(this, activity)) }
         }
 
         if (allPermissionsGranted()) startCamera() else permissionLauncher.launch(requiredPermissions)
@@ -95,44 +112,38 @@ class   MainActivity : AppCompatActivity() {
             }
         }, ContextCompat.getMainExecutor(this))
     }
-
-    /** Toma una foto y la guarda en la galería (Pictures/ScanDex). */
-    private fun takePhoto() {
-        val capture = imageCapture ?: return
-
-        val name = SimpleDateFormat(FILENAME_FORMAT, Locale.US).format(System.currentTimeMillis())
-        val values = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/ScanDex")
-            }
+    /** Identifica el Pokémon del visor, lo desbloquea, abre su ficha */
+    private fun scanAndCapturePokemon() {
+        val motor = pokemonEmbedder
+        val bitmap = previewView.bitmap
+        if (motor != null && bitmap != null) {
+            val lado = (minOf(bitmap.width, bitmap.height) * 0.65f).toInt()
+            val recorte = Bitmap.createBitmap(
+                bitmap, (bitmap.width - lado) / 2, (bitmap.height - lado) / 2, lado, lado
+            )
+            btnCapture.isEnabled = false
+            Thread {
+                val res = motor.identificarPokemon(recorte)
+                Log.d(TAG, "scan → ${res.nombrePokemon} sim=${"%.3f".format(res.similitudDirecta)} certeza=${"%.3f".format(res.certeza)} | ${res.segundoLugar} | detectado=${res.detectado}")
+                if (res.detectado && res.pokemonId > 0) {
+                    PokemonEncounterStore.registerEncounter(this, res.pokemonId)
+                }
+                runOnUiThread {
+                    btnCapture.isEnabled = true
+                    if (res.detectado && res.pokemonId > 0) {
+                        val pct = (res.similitudDirecta * 100).toInt()
+                        Toast.makeText(this, "¡${res.nombrePokemon} ($pct%)!", Toast.LENGTH_SHORT).show()
+                        startActivity(
+                            Intent(this, pokeinfo::class.java)
+                                .putExtra("pokemonId", res.pokemonId)
+                        )
+                    } else {
+                        Toast.makeText(this, res.nombrePokemon, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }.start()
         }
-
-        val outputOptions = ImageCapture.OutputFileOptions.Builder(
-            contentResolver, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values
-        ).build()
-
-        btnCapture.isEnabled = false
-        capture.takePicture(
-            outputOptions,
-            ContextCompat.getMainExecutor(this),
-            object : ImageCapture.OnImageSavedCallback {
-                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-                    btnCapture.isEnabled = true
-                    Toast.makeText(this@MainActivity, "Foto guardada en galería", Toast.LENGTH_SHORT).show()
-                    Log.d(TAG, "Foto guardada: ${output.savedUri}")
-                }
-
-                override fun onError(exc: ImageCaptureException) {
-                    btnCapture.isEnabled = true
-                    Toast.makeText(this@MainActivity, "Error: ${exc.message}", Toast.LENGTH_LONG).show()
-                    Log.e(TAG, "Error al tomar foto", exc)
-                }
-            }
-        )
     }
-
     companion object {
         private const val TAG = "ScanDex"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
