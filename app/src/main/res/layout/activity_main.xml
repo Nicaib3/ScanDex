@@ -161,6 +161,21 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btnCapture" />
 
+    <View
+        android:id="@+id/btnFavorites"
+        android:layout_width="0dp"
+        android:layout_height="64dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginBottom="4dp"
+        android:background="@android:color/transparent"
+        android:clickable="true"
+        android:contentDescription="Favoritos"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        app:layout_constraintBottom_toTopOf="@+id/button"
+        app:layout_constraintEnd_toStartOf="@+id/btnCapture"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <!-- Botón azul circular para tomar la foto -->
     <Button
         android:id="@+id/btnCapture"

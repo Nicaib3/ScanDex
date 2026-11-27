@@ -77,7 +77,8 @@ class   MainActivity : AppCompatActivity() {
         mapOf(
             R.id.btnLibrary to pokemonlibrary::class.java,
             R.id.button to teambuilder::class.java,
-            R.id.button4 to others::class.java
+            R.id.button4 to others::class.java,
+            R.id.btnFavorites to Favorites::class.java
         ).forEach { (id, activity) ->
             findViewById<View>(id).setOnClickListener { startActivity(Intent(this, activity)) }
         }

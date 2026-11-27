@@ -9,11 +9,15 @@
         <exclude domain="file" path="scandex_encounters.bin.tmp" />
         <exclude domain="file" path="scandex_teams.bin" />
         <exclude domain="file" path="scandex_teams.bin.tmp" />
+        <exclude domain="file" path="scandex_favorites.bin" />
+        <exclude domain="file" path="scandex_favorites.bin.tmp" />
     </cloud-backup>
     <device-transfer>
         <exclude domain="file" path="scandex_encounters.bin" />
         <exclude domain="file" path="scandex_encounters.bin.tmp" />
         <exclude domain="file" path="scandex_teams.bin" />
         <exclude domain="file" path="scandex_teams.bin.tmp" />
+        <exclude domain="file" path="scandex_favorites.bin" />
+        <exclude domain="file" path="scandex_favorites.bin.tmp" />
     </device-transfer>
 </data-extraction-rules>

@@ -30,7 +30,6 @@ class pokemonlibrary : AppCompatActivity() {
     private lateinit var layoutTeamPickerBar: LinearLayout
     private lateinit var tvTeamPickerCount: TextView
     private val executor: ExecutorService = Executors.newFixedThreadPool(6)
-    private val favoriteIds = mutableSetOf<Int>()
     private var isTeamPickerMode = false
     private val selectedTeamIds = mutableListOf<Int>()
 
@@ -72,6 +71,7 @@ class pokemonlibrary : AppCompatActivity() {
             val tagView = pokemonContainer.getChildAt(i)
             val pokemonId = tagView.tag as? Int ?: continue
             applyLockState(tagView, estaBloqueado(pokemonId))
+            syncFavoriteIcon(tagView, pokemonId)
         }
     }
 
@@ -93,6 +93,7 @@ class pokemonlibrary : AppCompatActivity() {
         executor.execute {
             try {
                 PokemonEncounterStore.preload(this)
+                PokemonFavoriteStore.preload(this)
                 val pokemonList = PokeApiService.fetchGen1PokemonList()
                 enPantalla {
                     progressBar.visibility = View.GONE
@@ -264,21 +265,30 @@ class pokemonlibrary : AppCompatActivity() {
 
     private fun configurarFavorito(tagView: View, pokemonId: Int) {
         val btnFav = tagView.findViewById<ImageButton>(R.id.btnfav)
+        syncFavoriteIcon(tagView, pokemonId)
         btnFav.setOnClickListener {
-            val esFavorito = if (favoriteIds.contains(pokemonId)) {
-                favoriteIds.remove(pokemonId)
-                false
-            } else {
-                favoriteIds.add(pokemonId)
-                true
+            if (estaBloqueado(pokemonId)) {
+                mostrarMensaje("Este Pokémon está bloqueado")
+                return@setOnClickListener
             }
-            val icono = if (esFavorito) {
-                android.R.drawable.btn_star_big_on
-            } else {
-                android.R.drawable.btn_star_big_off
-            }
-            btnFav.setImageResource(icono)
+            val esFavorito = PokemonFavoriteStore.toggleFavorite(this, pokemonId)
+            updateFavoriteIcon(tagView, esFavorito)
         }
+    }
+
+    private fun syncFavoriteIcon(tagView: View, pokemonId: Int) {
+        updateFavoriteIcon(
+            tagView,
+            !estaBloqueado(pokemonId) && PokemonFavoriteStore.isFavorite(this, pokemonId)
+        )
+    }
+
+    private fun updateFavoriteIcon(tagView: View, isFavorite: Boolean) {
+        val btnFav = tagView.findViewById<ImageButton>(R.id.btnfav)
+        btnFav.setImageResource(
+            if (isFavorite) android.R.drawable.btn_star_big_on
+            else android.R.drawable.btn_star_big_off
+        )
     }
 
     private fun openPokeInfo(

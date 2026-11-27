@@ -405,30 +405,8 @@ class pokeinfo : AppCompatActivity() {
         contenedor.background = degradado
     }
 
-    private fun obtenerColorDeTipo(tipo: String): Int {
-        val colorResId = when (tipo.trim().uppercase()) {
-            "NORMAL" -> R.color.type_normal
-            "FIRE", "FUEGO" -> R.color.type_fire
-            "WATER", "AGUA" -> R.color.type_water
-            "ELECTRIC", "ELECTRICO" -> R.color.type_electric
-            "GRASS", "PLANTA" -> R.color.type_grass
-            "ICE", "HIELO" -> R.color.type_ice
-            "FIGHTING", "LUCHA" -> R.color.type_fighting
-            "POISON", "VENENO" -> R.color.type_poison
-            "GROUND", "TIERRA" -> R.color.type_ground
-            "FLYING", "VOLADOR" -> R.color.type_flying
-            "PSYCHIC", "PSIQUICO" -> R.color.type_psychic
-            "BUG", "BICHO" -> R.color.type_bug
-            "ROCK", "ROCA" -> R.color.type_rock
-            "GHOST", "FANTASMA" -> R.color.type_ghost
-            "DRAGON" -> R.color.type_dragon
-            "DARK", "SINIESTRO" -> R.color.type_dark
-            "STEEL", "ACERO" -> R.color.type_steel
-            "FAIRY", "HADA" -> R.color.type_fairy
-            else -> R.color.type_normal
-        }
-        return ContextCompat.getColor(this, colorResId)
-    }
+    private fun obtenerColorDeTipo(tipo: String): Int =
+        PokemonTypeStyle.colorInt(this, tipo)
 
     override fun onDestroy() {
         super.onDestroy()
